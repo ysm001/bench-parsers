@@ -1,0 +1,137 @@
+
+                 L M B E N C H  3 . 0   S U M M A R Y
+                 ------------------------------------
+		 (Alpha software, do not distribute)
+
+Basic system parameters
+------------------------------------------------------------------------------
+Host                 OS Description              Mhz  tlb  cache  mem   scal
+                                                     pages line   par   load
+                                                           bytes  
+--------- ------------- ----------------------- ---- ----- ----- ------ ----
+hpg8-1-vm Linux 2.6.32-        x86_64-linux-gnu 2374                       1
+hpg8-1-vm Linux 2.6.32-        x86_64-linux-gnu 2372                       1
+hpg8-1-vm Linux 2.6.32-        x86_64-linux-gnu 2373                       1
+hpg8-1-vm Linux 2.6.32-        x86_64-linux-gnu 2373                       1
+hpg8-1-vm Linux 2.6.32-        x86_64-linux-gnu 2373                       1
+
+Processor, Processes - times in microseconds - smaller is better
+------------------------------------------------------------------------------
+Host                 OS  Mhz null null      open slct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP  inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+hpg8-1-vm Linux 2.6.32- 2374 0.10 0.16 1.24 1.85 3.52 0.18 1.16 213. 453. 1160
+hpg8-1-vm Linux 2.6.32- 2372 0.10 0.16 1.24 1.84 3.37 0.18 1.17 216. 456. 1169
+hpg8-1-vm Linux 2.6.32- 2373 0.10 0.16 1.24 1.87 3.63 0.18 1.16 214. 459. 1149
+hpg8-1-vm Linux 2.6.32- 2373 0.10 0.16 1.24 1.87 3.36 0.18 1.16 213. 453. 1164
+hpg8-1-vm Linux 2.6.32- 2373 0.10 0.16 1.24 1.85 3.37 0.18 1.15 215. 461. 1159
+
+Basic integer operations - times in nanoseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS  intgr intgr  intgr  intgr  intgr  
+                          bit   add    mul    div    mod   
+--------- ------------- ------ ------ ------ ------ ------ 
+hpg8-1-vm Linux 2.6.32- 0.4200 0.2100 0.1300 9.5400   10.0
+hpg8-1-vm Linux 2.6.32- 0.4200 0.2100 0.1300 9.5300   10.0
+hpg8-1-vm Linux 2.6.32- 0.4200 0.2100 0.1300 9.5400   10.0
+hpg8-1-vm Linux 2.6.32- 0.4200 0.2100 0.1300 9.5300   10.0
+hpg8-1-vm Linux 2.6.32- 0.4200 0.2100 0.1300 9.5400   10.0
+
+Basic uint64 operations - times in nanoseconds - smaller is better
+------------------------------------------------------------------
+Host                 OS int64  int64  int64  int64  int64  
+                         bit    add    mul    div    mod   
+--------- ------------- ------ ------ ------ ------ ------ 
+hpg8-1-vm Linux 2.6.32-  0.420        0.1300   18.8   18.1
+hpg8-1-vm Linux 2.6.32-  0.420        0.1300   18.8   18.1
+hpg8-1-vm Linux 2.6.32-  0.420        0.1300   18.8   18.1
+hpg8-1-vm Linux 2.6.32-  0.420        0.1300   18.8   18.1
+hpg8-1-vm Linux 2.6.32-  0.420        0.1300   18.8   18.1
+
+Basic float operations - times in nanoseconds - smaller is better
+-----------------------------------------------------------------
+Host                 OS  float  float  float  float
+                         add    mul    div    bogo
+--------- ------------- ------ ------ ------ ------ 
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 6.3200 6.1000
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 6.3200 6.1000
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 6.3200 6.1000
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 6.3200 6.1000
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 6.3200 6.1000
+
+Basic double operations - times in nanoseconds - smaller is better
+------------------------------------------------------------------
+Host                 OS  double double double double
+                         add    mul    div    bogo
+--------- ------------- ------  ------ ------ ------ 
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 9.6900 9.2800
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 9.6900 9.2800
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 9.6900 9.2800
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 9.6900 9.2800
+hpg8-1-vm Linux 2.6.32- 1.2700 2.1100 9.6900 9.2900
+
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------------------
+Host                 OS  2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                         ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ------ ------ ------ ------ ------ ------- -------
+hpg8-1-vm Linux 2.6.32-   19.2   20.1   22.3   21.1   23.8    21.6    24.0
+hpg8-1-vm Linux 2.6.32-   17.9   18.6   21.1   21.3   23.9    21.7    24.1
+hpg8-1-vm Linux 2.6.32-   20.6   21.1   19.2   22.1   22.9    22.4    23.3
+hpg8-1-vm Linux 2.6.32-   20.8   21.4   19.5   22.2   22.4    22.2    22.8
+hpg8-1-vm Linux 2.6.32-   18.0   18.5   21.2   21.1   23.0    21.0    23.4
+
+*Local* Communication latencies in microseconds - smaller is better
+---------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+hpg8-1-vm Linux 2.6.32-  19.2  39.2 40.5  11.5  17.1  62.0  21.1  51.
+hpg8-1-vm Linux 2.6.32-  17.9  37.4 37.4  11.6  16.7  59.8  20.9  51.
+hpg8-1-vm Linux 2.6.32-  20.6  39.1 34.8  11.8  17.2  62.2  20.8  50.
+hpg8-1-vm Linux 2.6.32-  20.8  40.7 35.9  11.5  16.9  61.9  21.0  51.
+hpg8-1-vm Linux 2.6.32-  18.0  37.8 37.9  11.4  17.1  59.7  21.4  52.
+
+*Remote* Communication latencies in microseconds - smaller is better
+---------------------------------------------------------------------
+Host                 OS   UDP  RPC/  TCP   RPC/ TCP
+                               UDP         TCP  conn
+--------- ------------- ----- ----- ----- ----- ----
+hpg8-1-vm Linux 2.6.32-                             
+hpg8-1-vm Linux 2.6.32-                             
+hpg8-1-vm Linux 2.6.32-                             
+hpg8-1-vm Linux 2.6.32-                             
+hpg8-1-vm Linux 2.6.32-                             
+
+File & VM system latencies in microseconds - smaller is better
+-------------------------------------------------------------------------------
+Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
+                        Create Delete Create Delete Latency Fault  Fault  selct
+--------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
+hpg8-1-vm Linux 2.6.32- 8.9801 7.0266   18.5   10.2  4370.0 0.289 1.03830 1.210
+hpg8-1-vm Linux 2.6.32- 8.9638 7.0967   18.7   10.2  4191.0 0.278 1.02800 1.211
+hpg8-1-vm Linux 2.6.32- 8.9377 7.0303   18.7   10.3  4319.0 0.308 1.04920 1.215
+hpg8-1-vm Linux 2.6.32- 8.9767 6.9725   18.6   10.3  4291.0 0.296 1.06300 1.210
+hpg8-1-vm Linux 2.6.32- 8.9617 7.0088   18.6   10.3  4466.0 0.303 1.05080 1.210
+
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+hpg8-1-vm Linux 2.6.32- 1219 2645 2052 4684.3 7176.9 2875.4 2884.8 6686 4053.
+hpg8-1-vm Linux 2.6.32- 1188 2864 2054 4722.9 7234.3 2886.2 2906.2 6660 4100.
+hpg8-1-vm Linux 2.6.32- 1082 2826 2055 4740.0 7178.6 2890.3 2885.0 6670 4064.
+hpg8-1-vm Linux 2.6.32- 1206 3506 2089 4712.4 7248.8 2896.1 2890.1 6694 4077.
+hpg8-1-vm Linux 2.6.32- 1346 3643 2106 4692.8 7217.9 2898.1 2899.0 6674 4097.
+
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+------------------------------------------------------------------------------
+Host                 OS   Mhz   L1 $   L2 $    Main mem    Rand mem    Guesses
+--------- -------------   ---   ----   ----    --------    --------    -------
+hpg8-1-vm Linux 2.6.32-  2374 1.6870 5.1850        37.8       126.3
+hpg8-1-vm Linux 2.6.32-  2372 1.6870 5.6060        37.8       126.5
+hpg8-1-vm Linux 2.6.32-  2373 1.6870 5.5970        37.8       126.4
+hpg8-1-vm Linux 2.6.32-  2373 1.6870 5.4630        37.8       126.4
+hpg8-1-vm Linux 2.6.32-  2373 1.6870 5.5510        37.8       126.4

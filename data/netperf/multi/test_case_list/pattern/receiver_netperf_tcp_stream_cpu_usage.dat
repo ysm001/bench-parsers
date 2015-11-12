@@ -1,0 +1,4 @@
+#%usr %nice %sys %iowait %irq %soft %guest %gnice %steal 
+#TCP_STREAM
+RHEL6.6 1.908 0.0 21.457 0.0 0.082 4.225 0.0 0.0 0.0
+RHEL6.7 0 0 0 0 0 0 0 0 0

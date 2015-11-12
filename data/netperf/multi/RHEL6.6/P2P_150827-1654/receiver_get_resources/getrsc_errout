@@ -1,0 +1,19 @@
+./get_resources.sh: Started 'sar' (32192)
+./get_resources.sh: Started 'numastat' (32195)
+./get_resources.sh: Started 'cat /proc/interrupts' (32197)
+./get_resources.sh: Started 'cat /proc/softirqs' (32200)
+./get_resources.sh: Started 'ethtool -S br0' (32205)
+./get_resources.sh: Started 'ethtool -S br1' (32206)
+./get_resources.sh: Started 'ethtool -S eth0' (32207)
+./get_resources.sh: Started 'ethtool -S eth1' (32209)
+./get_resources.sh: Started 'ethtool -S eth2' (32210)
+./get_resources.sh: Started 'ethtool -S eth3' (32213)
+./get_resources.sh: Started 'ethtool -S eth4' (32216)
+./get_resources.sh: Started 'ethtool -S eth5' (32217)
+./get_resources.sh: Started 'ethtool -S lo' (32219)
+./get_resources.sh: Started 'cat /proc/net/dev' (32223)
+./get_resources.sh: Started 'netstat -s' (32227)
+./get_resources.sh: Started 'tc -d -s qdisc show' (32231)
+./get_resources.sh: Kill me (32184) softly when you are ready to collect results.
+./get_resources.sh: Terminating log processes and archiving results...
+./get_resources.sh: Finished archiving results in 'hpg8-1.kern.oss.ntt.co.jp_netperf_t_UDP_RR_l_60_resrc_20150827-170748.tar.bz2'.

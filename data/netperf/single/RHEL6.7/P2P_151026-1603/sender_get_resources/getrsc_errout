@@ -1,0 +1,16 @@
+./get_resources.sh: Started 'top' (47946)
+./get_resources.sh: Started 'sar' (47947)
+./get_resources.sh: Started 'vmstat' (47948)
+./get_resources.sh: Started 'iostat' (47949)
+./get_resources.sh: Started 'cat /proc/diskstats' (47950)
+./get_resources.sh: Started 'cat /proc/meminfo' (47951)
+./get_resources.sh: Started 'cat /proc/interrupts' (47952)
+./get_resources.sh: Started 'dominfo' (47953)
+./get_resources.sh: Started 'vcpuinfo' (47954)
+./get_resources.sh: Started 'qemustatm' (47955)
+./get_resources.sh: Started 'qemuschedstat2' (47956)
+./get_resources.sh: Started 'qemuprocstat' (47957)
+./get_resources.sh: Started 'domifstat' (47958)
+./get_resources.sh: Kill me (47941) softly when you are ready to collect results.
+./get_resources.sh: Terminating log processes and archiving results...
+./get_resources.sh: Finished archiving results in 'hpg8-0.kern.oss.ntt.co.jp_resrc_20151026-161339.tar.bz2'.

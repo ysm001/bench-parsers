@@ -1,0 +1,26 @@
+2015年  7月 21日 火曜日 09:25:10 JST
+2.6.32-504.23.4.el6.x86_64
+Average Single threaded Run (std deviation):
+Elapsed Time 810.474 (0.171988)
+User Time 734.614 (0.0859069)
+System Time 78.144 (0.204279)
+Percent CPU 100 (0)
+Context Switches 26471.2 (22.6429)
+Sleeps 76141 (54.6809)
+
+Average Half load -j 3 Run (std deviation):
+Elapsed Time 276.894 (0.112827)
+User Time 738.08 (3.65937)
+System Time 78.099 (0.252166)
+Percent CPU 197.8 (103.091)
+Context Switches 27104.5 (668.07)
+Sleeps 77220.9 (1142.56)
+
+Average Optimal load -j 16 Run (std deviation):
+Elapsed Time 226.936 (0.386691)
+User Time 754.69 (24.4912)
+System Time 78.904 (1.20101)
+Percent CPU 259.267 (122.181)
+Context Switches 98215.3 (104097)
+Sleeps 84008.1 (9978.29)
+

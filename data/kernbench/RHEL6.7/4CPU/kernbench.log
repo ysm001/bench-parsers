@@ -1,0 +1,78 @@
+2015年  7月 21日 火曜日 11:39:41 JST
+2.6.32-504.23.4.el6.x86_64
+Average Single threaded Run (std deviation):
+Elapsed Time 809.73 (0.0932738)
+User Time 734.02 (0.257002)
+System Time 78.196 (0.215012)
+Percent CPU 100 (0)
+Context Switches 27207.8 (28.0482)
+Sleeps 76651.6 (116.618)
+
+Average Half load -j 4 Run (std deviation):
+Elapsed Time 210.972 (0.157702)
+User Time 740.395 (6.72516)
+System Time 79.173 (1.06036)
+Percent CPU 245.7 (153.582)
+Context Switches 27239.1 (45.1232)
+Sleeps 77848.5 (1284.59)
+
+Average Optimal load -j 32 Run (std deviation):
+Elapsed Time 120.748 (0.802072)
+User Time 761.058 (30.7251)
+System Time 81.41 (3.38795)
+Percent CPU 408.8 (268.652)
+Context Switches 85640.7 (85491.5)
+Sleeps 88891.2 (16205.7)
+
+2015年 10月 21日 水曜日 10:17:19 JST
+2.6.32-573.el6.x86_64
+Average Single threaded Run (std deviation):
+Elapsed Time 810.034 (0.110815)
+User Time 733.814 (0.174585)
+System Time 77.362 (0.222306)
+Percent CPU 100 (0)
+Context Switches 26892 (22.8035)
+Sleeps 76101 (33.6526)
+
+Average Half load -j 3 Run (std deviation):
+Elapsed Time 277.044 (0.095289)
+User Time 737.517 (3.90885)
+System Time 77.984 (0.696359)
+Percent CPU 197.7 (102.985)
+Context Switches 27428.2 (567.792)
+Sleeps 77058.8 (1012.93)
+
+Average Optimal load -j 16 Run (std deviation):
+Elapsed Time 226.612 (0.558005)
+User Time 754.414 (24.9327)
+System Time 79.0533 (1.66542)
+Percent CPU 259.533 (122.521)
+Context Switches 97577.7 (102690)
+Sleeps 84130.9 (10396.5)
+
+2015年 10月 21日 水曜日 14:04:45 JST
+2.6.32-573.el6.x86_64
+Average Single threaded Run (std deviation):
+Elapsed Time 811.128 (0.0960208)
+User Time 735.016 (0.105972)
+System Time 78.21 (0.15906)
+Percent CPU 100 (0)
+Context Switches 27656 (44.872)
+Sleeps 75813.2 (431.384)
+
+Average Half load -j 4 Run (std deviation):
+Elapsed Time 211.356 (0.200948)
+User Time 741.34 (6.66731)
+System Time 79.376 (1.2411)
+Percent CPU 245.7 (153.582)
+Context Switches 27496.7 (173.833)
+Sleeps 77383.3 (1684.57)
+
+Average Optimal load -j 32 Run (std deviation):
+Elapsed Time 120.314 (0.823061)
+User Time 762.09 (30.8419)
+System Time 81.8193 (3.71302)
+Percent CPU 410.333 (270.649)
+Context Switches 85390 (84747.5)
+Sleeps 88458.3 (16270)
+
