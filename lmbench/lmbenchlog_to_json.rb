@@ -14,7 +14,7 @@ class LmBenchLogParser
   def self.parse(file_path)
     content = File.open(file_path).read
     blocks = filter_blocks(split_to_block(content))
-    pp blocks.map { |block| { block[:title] => parse_block(block) } }
+    flatten_result(blocks.map { |block| { block[:title] => parse_block(block) } })
   end
 
   def self.split_to_block(content)
@@ -50,6 +50,8 @@ class LmBenchLogParser
     header_top_regex = /-+\n/
     header_bottom_regex = /(-+ )+-+\s+/
     header_lines = block[:body].match(/#{header_top_regex}(?<header_body>.+?)#{header_bottom_regex}/m) do |match|
+      print match[:header_body]
+      pp multi_columns(block, match[:header_body].lines)
       match[:header_body].lines.map do |line|
         column_ranges.map { |range| line.slice(range) }.compact.map(&:strip)
       end
@@ -75,11 +77,29 @@ class LmBenchLogParser
     result.keys.select { |key| !ignores.include?(key) }.each_with_object({}) { |k, h| h[k] = result[k] }
   end
 
+  def self.flatten_result(result)
+    result.each_with_object({}) do |blocks, h|
+      blocks.each { |k, v| h[k] = v }
+    end
+  end
+
   def self.column_ranges(block)
     (block[:body]).match(/(-+ )+-+\s+/) do |match|
       header_bottom = match[0]
       spaces = [-1] + (0...header_bottom.length).find_all { |i| header_bottom[i] == ' ' } + [header_bottom.length - 1]
       spaces.map.with_index { |val, idx| (spaces[idx] + 1..spaces[idx + 1] - 1) unless spaces[idx + 1].nil? }.compact
+    end
+  end
+
+  def self.multi_columns(block, header_lines)
+    (block[:body]).match(/(-+ )+-+\s+/) do |match|
+      header_bottom = match[0]
+      spaces = (0...header_bottom.length).find_all { |i| header_bottom[i] == ' ' }
+
+      spaces.select { |space| !(/\s/ =~ header_lines.first[space]) }.map do |space|
+        multi_column_index = spaces.index(space)
+        (multi_column_index..multi_column_index + 1)
+      end
     end
   end
 end
@@ -148,14 +168,16 @@ end
 
 class LmBenchLogComparator
   def self.compare(old_logs, new_logs)
-    merge(old_logs, new_logs)
-  end
-
-  def self.merge(old_logs, new_logs)
-    old_logs.each_with_object({}) do |(col_name, col_values), h|
-      h[col_name] ||= {}
-      col_values.each do |raw_name, raw_value|
-        h[col_name][raw_name] = raw_value.merge(new_logs[col_name][raw_name]);
+    old_logs.each_with_object({}) do |(title, key_values), block|
+      block[title] = key_values.each_with_object({}) do |(key, old_values), h|
+        h[key] = new_logs[title][key].map.with_index do |new_value, idx|
+          old_value = old_values[idx]
+          {
+            old: old_value,
+            new: new_value,
+            ratio: new_value.to_f / old_value.to_f
+          }
+        end
       end
     end
   end
@@ -178,7 +200,10 @@ end
 old_file = ARGV[0]
 new_file = ARGV[1]
 
-LmBenchLogParser.parse('./data/lmbench/6.6/summary.txt')
+old_logs = LmBenchLogParser.parse(old_file)
+new_logs = LmBenchLogParser.parse(new_file)
+
+pp LmBenchLogComparator.compare(old_logs, new_logs)
 
 # if !old_file.nil? && new_file.nil?
 #   print LmBenchLogFormatter.format(LmBenchLogLoader.load(old_file)).to_json
