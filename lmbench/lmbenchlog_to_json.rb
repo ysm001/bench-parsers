@@ -184,10 +184,12 @@ class LmBenchLogComparator
       block[title] = key_values.each_with_object({}) do |(key, old_values), h|
         h[key] = new_logs[title][key].map.with_index do |new_value, idx|
           old_value = old_values[idx]
+          ratio = new_value.to_f / old_value.to_f
+
           {
             old: old_value,
             new: new_value,
-            ratio: new_value.to_f / old_value.to_f
+            ratio: ratio.nan? ? 0 : ratio
           }
         end
       end
@@ -215,7 +217,7 @@ new_file = ARGV[1]
 old_logs = LmBenchLogParser.parse(old_file)
 new_logs = LmBenchLogParser.parse(new_file)
 
-pp LmBenchLogComparator.compare(old_logs, new_logs)
+print LmBenchLogComparator.compare(old_logs, new_logs).to_json
 
 # if !old_file.nil? && new_file.nil?
 #   print LmBenchLogFormatter.format(LmBenchLogLoader.load(old_file)).to_json
