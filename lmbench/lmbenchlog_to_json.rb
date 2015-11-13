@@ -50,10 +50,22 @@ class LmBenchLogParser
     header_top_regex = /-+\n/
     header_bottom_regex = /(-+ )+-+\s+/
     header_lines = block[:body].match(/#{header_top_regex}(?<header_body>.+?)#{header_bottom_regex}/m) do |match|
-      print match[:header_body]
-      pp multi_columns(block, match[:header_body].lines)
-      match[:header_body].lines.map do |line|
+      multi_columns = multi_columns(block, match[:header_body].lines)
+
+      headers = match[:header_body].lines.map do |line|
         column_ranges.map { |range| line.slice(range) }.compact.map(&:strip)
+      end
+
+      headers.map.with_index do |header, header_idx|
+        header.map.with_index do |col, idx|
+          multi_column = multi_columns.find { |c| c[:index].begin == idx || c[:index].end == idx }
+
+          if !multi_column.nil? && header_idx == 0
+            ''
+          else
+            multi_column.nil? ? col : "#{headers.first[multi_column[:index].begin]}#{multi_column[:char]}#{headers.first[multi_column[:index].end]} #{col}"
+          end
+        end
       end
     end
 
@@ -96,9 +108,9 @@ class LmBenchLogParser
       header_bottom = match[0]
       spaces = (0...header_bottom.length).find_all { |i| header_bottom[i] == ' ' }
 
-      spaces.select { |space| !(/\s/ =~ header_lines.first[space]) }.map do |space|
+      spaces.select { |space| !(/\s/ =~ header_lines.first[space] || /\s/ =~ header_lines.first[space + 1]) }.map do |space|
         multi_column_index = spaces.index(space)
-        (multi_column_index..multi_column_index + 1)
+        { index: (multi_column_index..multi_column_index + 1), char: header_lines.first[space] }
       end
     end
   end
