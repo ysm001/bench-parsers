@@ -159,21 +159,14 @@ end
 
 class LmBenchLogAggregator
   def self.average(logs)
-    groups = group(logs)
-    groups.each_with_object({}) { |(k, g), h| h[k] = group_average(g) }
-  end
-
-  def self.group(logs)
-    logs.each_with_object({}) do |values, h|
-      values.each do |type, times|
-        h[type] = (h[type] || []) + [times]
+    logs.each_with_object({}) do |(main_category, values), main|
+      main[main_category] = values.each_with_object({}) do |(sub_category, values), sub|
+        old_average = average = values.reduce(0) { |sum, value| sum + value[:old] } / values.size
+        new_average = average = values.reduce(0) { |sum, value| sum + value[:new] } / values.size
+        
+        ratio = new_average != 0 ? (new_average - old_average) / new_average : 0
+        sub[sub_category] = { values: values, averages: { old: old_average, new: new_average }, ratio: ratio }
       end
-    end
-  end
-
-  def self.group_average(group)
-    group.each_with_object({}) do |hash, ave|
-      hash.each { |k, v| ave[k] = (ave[k] || 0) + v.to_f / group.size }
     end
   end
 end
@@ -184,27 +177,11 @@ class LmBenchLogComparator
       block[title] = key_values.each_with_object({}) do |(key, old_values), h|
         h[key] = new_logs[title][key].map.with_index do |new_value, idx|
           old_value = old_values[idx]
-          ratio = new_value.to_f / old_value.to_f
 
           {
-            old: old_value,
-            new: new_value,
-            ratio: ratio.nan? ? 0 : ratio
+            old: old_value.to_f,
+            new: new_value.to_f,
           }
-        end
-      end
-    end
-  end
-end
-
-class LmBenchLogFormatter
-  def self.format(logs)
-    logs.each_with_object({}) do |(onoff, v), h|
-      v[:average].each do |col_name, col_values|
-        h[col_name] ||= {}
-        col_values.each do |raw_name, raw_value|
-          h[col_name][raw_name] ||= {}
-          h[col_name][raw_name][onoff] = raw_value
         end
       end
     end
@@ -214,15 +191,10 @@ end
 old_file = ARGV[0]
 new_file = ARGV[1]
 
-old_logs = LmBenchLogParser.parse(old_file)
-new_logs = LmBenchLogParser.parse(new_file)
-
-print LmBenchLogComparator.compare(old_logs, new_logs).to_json
-
-# if !old_file.nil? && new_file.nil?
-#   print LmBenchLogFormatter.format(LmBenchLogLoader.load(old_file)).to_json
-# elsif !old_file.nil? && !new_file.nil?
-#   print LmBenchLogComparator.compare(LmBenchLogFormatter.format(LmBenchLogLoader.load(old_file)), LmBenchLogFormatter.format(LmBenchLogLoader.load(new_file))).to_json
-# else
-#   print_usage_and_exit
-# end
+if !old_file.nil? && new_file.nil?
+  print LmBenchLogParser.parse(old_file).to_json
+elsif !old_file.nil? && !new_file.nil?
+  print LmBenchLogAggregator.average(LmBenchLogComparator.compare(LmBenchLogParser.parse(old_file), LmBenchLogParser.parse(new_file))).to_json
+else
+  print_usage_and_exit
+end
