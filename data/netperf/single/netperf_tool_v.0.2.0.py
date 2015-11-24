@@ -93,6 +93,7 @@ import ConfigParser
 import math
 import subprocess
 import pprint
+import json
 
 # 詳細出力オプション (0:出力抑止,1:詳細出力)
 VERBOSE=0
@@ -675,6 +676,7 @@ def create_netperf_result_file(test_case_lists, netperf_data, result_dir_path):
 
 """ create_cpu_usage_result_file """
 def create_cpu_usage_result_file(test_case_lists, cpu_usage_data, result_dir_path, get_resources_dirtype):
+    print(result_dir_path)
     # 設定ファイル読み込み
     inifile = ConfigParser.SafeConfigParser()
     if os.path.exists(INIFILE_GNUPLOT):
@@ -690,64 +692,48 @@ def create_cpu_usage_result_file(test_case_lists, cpu_usage_data, result_dir_pat
         target_num = len(CPU_USAGE_ITEMS) - 1
     else:
         target_num = len(CPU_USAGE_ITEMS)
+
+    result = {}
  
+    tcp_stream_list = {}
     # TCP_STREAM
-    with open(result_dir_path + get_resources_dirtype + '_' + CPU_USAGE_TCP_STREAM_RESULT, mode='w') as gnufile:
-        gnufile.write('#')
-        for i in range(target_num):
-            gnufile.write(CPU_USAGE_ITEMS[i] + ' ')
-        gnufile.write('\n')
-            
-        gnufile.write('#TCP_STREAM\n')
-        for i,test_case_list in enumerate(test_case_lists):
-            gnufile.write(test_case_list)
-            for j in range(target_num):
-                gnufile.write(" ")
-                gnufile.write(str(cpu_usage_data[CPU_USAGE_TCP_STREAM_TESTS_OFFSET][i][j]))
-            gnufile.write("\n")
+    for i,test_case_list in enumerate(test_case_lists):
+        tcp_stream_items = {}
+        for j in range(target_num):
+            tcp_stream_items[CPU_USAGE_ITEMS[j]] = cpu_usage_data[CPU_USAGE_TCP_STREAM_TESTS_OFFSET][i][j]
+            tcp_stream_list[test_case_list] = tcp_stream_items
 
+    result['TCP_STREAM'] = tcp_stream_list
+
+    udp_stream_list = {}
     # UDP_STREAM
-    with open(result_dir_path + get_resources_dirtype + '_' + CPU_USAGE_UDP_STREAM_RESULT, mode='w') as gnufile:
-        gnufile.write('#')
-        for i in range(target_num):
-            gnufile.write(CPU_USAGE_ITEMS[i] + ' ')
-        gnufile.write('\n')
+    for i in range(len(UDP_STREAM_TESTS)):
+        for j,test_case_list in enumerate(test_case_lists):
+            udp_stream_items = {}
+            for k in range(target_num):
+                udp_stream_items[CPU_USAGE_ITEMS[k]] = cpu_usage_data[CPU_USAGE_UDP_STREAM_TESTS_OFFSET + i][j][k]
+                udp_stream_list[test_case_list] = udp_stream_items
+            result[UDP_STREAM_TESTS[i]] = udp_stream_list
 
-        for i in range(len(UDP_STREAM_TESTS)):
-            gnufile.write("#%s\n" % UDP_STREAM_TESTS[i])
-
-            for j,test_case_list in enumerate(test_case_lists):
-                gnufile.write(test_case_list)
-                for k in range(target_num):
-                    gnufile.write(" ")
-                    gnufile.write(str(cpu_usage_data[CPU_USAGE_UDP_STREAM_TESTS_OFFSET + i][j][k]))
-                gnufile.write("\n")
-            gnufile.write('\n\n')
-                
     # TCP/UDP_RR
-    with open(result_dir_path+get_resources_dirtype + '_' + CPU_USAGE_RR_RESULT, mode='w') as gnufile:
-        gnufile.write('#')
-        for i in range(target_num):
-            gnufile.write(CPU_USAGE_ITEMS[i] + ' ')
-        gnufile.write('\n')
+    tcp_rr_list = {}
+    udp_rr_list = {}
+    for i,test_case_list in enumerate(test_case_lists):
+        tcp_rr_items = {}
+        for j in range(target_num):
+            tcp_rr_items[CPU_USAGE_ITEMS[j]] = cpu_usage_data[CPU_USAGE_TCP_RR_TESTS_OFFSET][i][j]
+            tcp_rr_list[test_case_list] = tcp_rr_items
 
-        gnufile.write('#TCP_RR\n')
+        result['TCP_RR'] = tcp_rr_list
+
         for i,test_case_list in enumerate(test_case_lists):
-            gnufile.write(test_case_list)
+            udp_rr_items = {}
             for j in range(target_num):
-                gnufile.write(" ")
-                gnufile.write(str(cpu_usage_data[CPU_USAGE_TCP_RR_TESTS_OFFSET][i][j]))
-            gnufile.write("\n")
+                udp_rr_items[CPU_USAGE_ITEMS[j]] = cpu_usage_data[CPU_USAGE_UDP_RR_TESTS_OFFSET][i][j]
 
-        gnufile.write('\n\n')
+        result['UDP_RR'] = udp_rr_list
 
-        gnufile.write('#UDP_RR\n')
-        for i,test_case_list in enumerate(test_case_lists):
-            gnufile.write(test_case_list)
-            for j in range(target_num):
-                gnufile.write(" ")
-                gnufile.write(str(cpu_usage_data[CPU_USAGE_UDP_RR_TESTS_OFFSET][i][j]))
-            gnufile.write("\n")
+    return result
 
 """ create_netperf_gnuplot_graph """
 def create_netperf_gnuplot_graph(test_case_lists_num, result_dir_path):
@@ -775,7 +761,7 @@ def create_netperf_gnuplot_graph(test_case_lists_num, result_dir_path):
                                             png_size_x, png_size_y)
 
     netperf_plt = format_plt_for_oneline(netperf_plt)
-    subprocess.call(["gnuplot", "-e", netperf_plt])
+    # subprocess.call(["gnuplot", "-e", netperf_plt])
 
     # NETPERF_UDP_STREAM_SENDER
     # compare (test_case_lists) results
@@ -785,7 +771,7 @@ def create_netperf_gnuplot_graph(test_case_lists_num, result_dir_path):
                                             png_size_x, png_size_y)
 
     netperf_plt = format_plt_for_oneline(netperf_plt)
-    subprocess.call(["gnuplot", "-e", netperf_plt])
+    # subprocess.call(["gnuplot", "-e", netperf_plt])
 
     # NETPERF_UDP_STREAM_RECEIVER
     # compare (test_case_lists) results
@@ -795,7 +781,7 @@ def create_netperf_gnuplot_graph(test_case_lists_num, result_dir_path):
                                             png_size_x, png_size_y)
 
     netperf_plt = format_plt_for_oneline(netperf_plt)
-    subprocess.call(["gnuplot", "-e", netperf_plt])
+    # subprocess.call(["gnuplot", "-e", netperf_plt])
 
     # NETPERF_RR_TEST
     # compare (test_case_lists) results
@@ -805,7 +791,7 @@ def create_netperf_gnuplot_graph(test_case_lists_num, result_dir_path):
                                         png_size_x, png_size_y)
 
     netperf_plt = format_plt_for_oneline(netperf_plt)
-    subprocess.call(["gnuplot", "-e", netperf_plt])
+    # subprocess.call(["gnuplot", "-e", netperf_plt])
 
 """ create_cpu_usage_gnuplot_graph """
 def create_cpu_usage_gnuplot_graph(test_case_lists_num, result_dir_path, get_resources_dirtype):
@@ -832,7 +818,7 @@ def create_cpu_usage_gnuplot_graph(test_case_lists_num, result_dir_path, get_res
                                          png_size_x, png_size_y)
 
     cpu_usage_plt = format_plt_for_oneline(cpu_usage_plt)
-    subprocess.call(["gnuplot", "-e", cpu_usage_plt])
+    # subprocess.call(["gnuplot", "-e", cpu_usage_plt])
 
     # NETPERF_UDP_STREAM
     # compare (test_case_lists) results
@@ -842,7 +828,7 @@ def create_cpu_usage_gnuplot_graph(test_case_lists_num, result_dir_path, get_res
                                          png_size_x, png_size_y)
 
     cpu_usage_plt = format_plt_for_oneline(cpu_usage_plt)
-    subprocess.call(["gnuplot", "-e", cpu_usage_plt])
+    # subprocess.call(["gnuplot", "-e", cpu_usage_plt])
 
     # NETPERF_RR_TEST
     # compare (test_case_lists) results
@@ -852,7 +838,7 @@ def create_cpu_usage_gnuplot_graph(test_case_lists_num, result_dir_path, get_res
                                          png_size_x, png_size_y)
 
     cpu_usage_plt = format_plt_for_oneline(cpu_usage_plt)
-    subprocess.call(["gnuplot", "-e", cpu_usage_plt])
+    # subprocess.call(["gnuplot", "-e", cpu_usage_plt])
 
 """ proc_netperf_result """
 def proc_netperf_result(test_case_lists, result_dir_path):
@@ -963,6 +949,11 @@ def proc_netperf_result(test_case_lists, result_dir_path):
 
 """ proc_cpu_usage_result """
 def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtype):
+    print('---------------------------------------------')
+    print(test_case_lists)
+    print(result_dir_path)
+    print(get_resources_dirtype)
+    print('---------------------------------------------')
 
     # gnuplot 用のデータを初期化
     # gnuplot_cpu_usage_data [CPU_USAGE_TEST_INDEX]
@@ -974,6 +965,8 @@ def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtyp
 
     # グラフ出力フラグ
     gnuplot_flg = 0
+
+    result = {'each': {}, 'all': {}}
 
     # 指定ディレクトリリスト数分繰り返し
     # (./ 配下の test_case_list.txt で指定した <TESTCASE> ディレクトリ数)
@@ -1139,8 +1132,8 @@ def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtyp
             if os.path.isdir(each_cpu_usage_result_path) == 0: os.makedirs(each_cpu_usage_result_path)
 
             # gnuplot (各 CPU の cpu_usage) 用のデータ生成
-            create_cpu_usage_result_file(cpu_name_list, each_cpu_data, \
-                                         each_cpu_usage_result_path, get_resources_dirtype)
+            result['each'][test_case_lists[i]] = create_cpu_usage_result_file(cpu_name_list, each_cpu_data, \
+                                                                      each_cpu_usage_result_path, get_resources_dirtype)
 
             # gnuplot (各 CPU の cpu_usage) グラフの生成
             create_cpu_usage_gnuplot_graph(len(cpu_name_list), each_cpu_usage_result_path, get_resources_dirtype)
@@ -1149,15 +1142,18 @@ def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtyp
 
     if gnuplot_flg != 0:
         # gnuplot (cpu_usage) 用のデータ生成
-        create_cpu_usage_result_file(test_case_lists, gnuplot_cpu_usage_data, \
-                                     result_dir_path, get_resources_dirtype)
+        result['all'] = create_cpu_usage_result_file(test_case_lists, gnuplot_cpu_usage_data, \
+                                                                        result_dir_path, get_resources_dirtype)
         # gnuplot グラフの生成
         create_cpu_usage_gnuplot_graph(len(test_case_lists), result_dir_path, get_resources_dirtype)
+
+    return result
 
 """ main """
 def main():
 
     print "★ netperf_tool.py の処理を開始します"
+    results = {}
 
     # TEST_CASE_LIST_DIR 配下の比較パターンとなるディレクトリのリスト (./{TEST_CASE_LIST_DIR}/ 配下のディレクトリ)
     test_case_list_dir_lists = []
@@ -1207,7 +1203,7 @@ def main():
                 if VERBOSE: print "★★ netperf"
 
                 # netperf_result メイン処理呼び出し
-                proc_netperf_result(test_case_lists, result_dir_path)
+                results['netperf'] = proc_netperf_result(test_case_lists, result_dir_path)
 
             ### CPU 使用率の処理部
             ### (NETPERF_TOOL_MODE が 1:netperf 以外)
@@ -1218,8 +1214,11 @@ def main():
 
                 # cpu_usage メイン処理呼び出し (SENDER/RECEIVER/SENDER_HYPERVISOR/RECEIVER_HYPERVISOR)
                 for j in range(len(CPU_USAGE_TEST_PATTERN)):
-                    proc_cpu_usage_result(test_case_lists, result_dir_path, CPU_USAGE_TEST_PATTERN[j])
+                    result = proc_cpu_usage_result(test_case_lists, result_dir_path, CPU_USAGE_TEST_PATTERN[j])
+                    if result is not None:
+                        results[CPU_USAGE_TEST_PATTERN[j]] = result
 
+            print(json.dumps(results))
             print "★★ %s の処理を終了" % test_case_list_dir_lists[i]
 
     print "★ netperf_tool.py の処理を終了します"
