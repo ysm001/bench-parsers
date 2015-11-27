@@ -689,6 +689,7 @@ def create_cpu_usage_result_file(test_case_lists, cpu_usage_data, result_dir_pat
         target_num = len(CPU_USAGE_ITEMS)
 
     result = {}
+    result['Stream CPU Usage'] = {}
  
     tcp_stream_list = {}
     # TCP_STREAM
@@ -698,7 +699,7 @@ def create_cpu_usage_result_file(test_case_lists, cpu_usage_data, result_dir_pat
             tcp_stream_items[CPU_USAGE_ITEMS[j]] = cpu_usage_data[CPU_USAGE_TCP_STREAM_TESTS_OFFSET][i][j]
             tcp_stream_list[test_case_list] = tcp_stream_items
 
-    result['TCP_STREAM'] = tcp_stream_list
+    result['Stream CPU Usage']['TCP_STREAM'] = tcp_stream_list
 
     udp_stream_list = {}
     # UDP_STREAM
@@ -708,25 +709,26 @@ def create_cpu_usage_result_file(test_case_lists, cpu_usage_data, result_dir_pat
             for k in range(target_num):
                 udp_stream_items[CPU_USAGE_ITEMS[k]] = cpu_usage_data[CPU_USAGE_UDP_STREAM_TESTS_OFFSET + i][j][k]
                 udp_stream_list[test_case_list] = udp_stream_items
-            result[UDP_STREAM_TESTS[i]] = udp_stream_list
+            result['Stream CPU Usage'][UDP_STREAM_TESTS[i]] = udp_stream_list
 
     # TCP/UDP_RR
     tcp_rr_list = {}
     udp_rr_list = {}
+    result['RR CPU Usage'] = {}
     for i,test_case_list in enumerate(test_case_lists):
         tcp_rr_items = {}
         for j in range(target_num):
             tcp_rr_items[CPU_USAGE_ITEMS[j]] = cpu_usage_data[CPU_USAGE_TCP_RR_TESTS_OFFSET][i][j]
             tcp_rr_list[test_case_list] = tcp_rr_items
 
-        result['TCP_RR'] = tcp_rr_list
+        result['RR CPU Usage']['TCP_RR'] = tcp_rr_list
 
         for i,test_case_list in enumerate(test_case_lists):
             udp_rr_items = {}
             for j in range(target_num):
                 udp_rr_items[CPU_USAGE_ITEMS[j]] = cpu_usage_data[CPU_USAGE_UDP_RR_TESTS_OFFSET][i][j]
 
-        result['UDP_RR'] = udp_rr_list
+        result['RR CPU Usage']['UDP_RR'] = udp_rr_list
 
     return result
 
