@@ -164,7 +164,7 @@ class LmBenchLogAggregator
         old_average = average = values.reduce(0) { |sum, value| sum + value[:old] } / values.size
         new_average = average = values.reduce(0) { |sum, value| sum + value[:new] } / values.size
         
-        ratio = new_average != 0 ? (new_average - old_average) / new_average : 0
+        ratio = new_average != 0 ? (new_average - old_average) * 100 / new_average : 0
         sub[sub_category] = { values: values, averages: { old: old_average, new: new_average }, ratio: ratio }
       end
     end
