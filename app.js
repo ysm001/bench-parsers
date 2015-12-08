@@ -9,12 +9,13 @@ const app = express();
 const server = http.createServer(app);
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
-function getLogDirs(jobName, buildNumber, type) {
-  const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}`;
+function getLogDirs(jobName, buildNumber, type, singleOrMulti) {
+  const singleOrMultiDir = singleOrMulti ? `/${singleOrMulti}` : '';
+  const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}${singleOrMultiDir}`;
 
   return new Promise((resolve, reject) => {
     fs.readdir(logsPath, (err, files) => {
-      if (err) reject(err);
+      if (err) return reject(err);
 
       const logDirs = files.map((file) => {
         return path.join(logsPath, file);
@@ -27,32 +28,34 @@ function getLogDirs(jobName, buildNumber, type) {
   });
 }
 
+function execNetperfParser(targets) {
+  const parser = 'src/parsers/netperf.py';
+}
+
 function execParser(type, targets) {
-  const isPythonScript = type == 'netperf';
-  const ext = isPythonScript ? '.py' : '.rb';
-  const runtime = isPythonScript ? 'python' : 'ruby';
-  const parser = `src/parsers/${type}${ext}`;
+  const parser = `src/parsers/${type}.rb`;
   const oldLog = targets[0];
   const newLog = targets[1];
-  const query = `${runtime} ${parser} ${oldLog} ${newLog}`;
+  const query = `ruby ${parser} ${oldLog} ${newLog}`;
 
+  console.log(query);
   return new Promise((resolve, reject) => {
     exec(query, function (error, stdout, stderr) {
       if (error !== null) reject(error);
-      if (stderr) reject(stderr);
-      if (stdout) resolve(stdout);
+      else if (stderr) reject(stderr);
+      else if (stdout) resolve(stdout);
     })
   });
 }
 
-app.get('/logs/:jobname/:buildnumber/:type.json', function(req, res) {
+app.get('/logs/:jobname/:buildnumber/:type/:singleormulti?.json', function(req, res) {
   const params = req.params;
-  getLogDirs(params.jobname, params.buildnumber, params.type).then((logDirs) => {
+  getLogDirs(params.jobname, params.buildnumber, params.type, params.singleormulti).then((logDirs) => {
     return execParser(params.type, logDirs);
   }).then((result) => {
     res.send(result);
   }).catch((error) => {
-    res.send(result);
+    res.send(error);
   });
 });
 

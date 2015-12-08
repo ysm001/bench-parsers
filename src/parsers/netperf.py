@@ -96,7 +96,9 @@ import pprint
 import json
 
 # 詳細出力オプション (0:出力抑止,1:詳細出力)
-VERBOSE=0
+VERBOSE = 0
+
+INFO = 0
 
 # 集計オプション (0:ALL,1:netperf,2:cpu)
 NETPERF_TOOL_MODE=0
@@ -104,15 +106,13 @@ NETPERF_TOOL_MODE=0
 # 有効桁数
 NDIGITS = 10
 
-if (len(sys.argv) != 3):
-    print('usage: ./netperflog_to_json.py <target-dir> <output-dir>')
+if (len(sys.argv) != 2):
+    print('usage: ./netperflog_to_json.py <target-dir>')
     sys.exit()
 
 TARGET_DIR = os.path.abspath(sys.argv[1])
-OUTPUT_DIR = os.path.abspath(sys.argv[2])
 
 os.chdir(TARGET_DIR)
-if not os.path.exists(OUTPUT_DIR): os.makedirs(OUTPUT_DIR)
 
 OLD_VERSION = 'old'
 NEW_VERSION = 'new'
@@ -861,11 +861,7 @@ def proc_netperf_result(test_case_lists, result_dir_path):
     # (./ 配下の test_case_list.txt で指定した <TESTCASE> ディレクトリ数)
 
     # gnuplot (netperf) 用のデータ生成
-    results = create_netperf_result_file(test_case_lists, gnuplot_netperf_data, result_dir_path)
-    out_file_name = OUTPUT_DIR + '/cpu_time.json'
-    with open(out_file_name, mode='w') as file:
-        print("write results >> %s" % out_file_name);
-        file.write(json.dumps(results));
+    return create_netperf_result_file(test_case_lists, gnuplot_netperf_data, result_dir_path)
 
 """ proc_cpu_usage_result """
 def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtype):
@@ -990,12 +986,13 @@ def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtyp
                 else:
                     # super_netperf2 の試行回数毎の CPU 数が異なる場合、リストの参照がおかしくなるので以降の処理をスキップ
                     if len(tmp_each_cpu_data) != len(each_cpu_data[tarbz2_idx]):
-                        print "tmp_each_cpu_data:"
-                        pprint.pprint(tmp_each_cpu_data)
-                        print "each_cpu_data:"
-                        pprint.pprint(each_cpu_data)
-                        print "each_cpu_data [ %d ] :" % tarbz2_idx
-                        pprint.pprint(each_cpu_data[tarbz2_idx])
+                        if INFO: 
+                            print "tmp_each_cpu_data:"
+                            pprint.pprint(tmp_each_cpu_data)
+                            print "each_cpu_data:"
+                            pprint.pprint(each_cpu_data)
+                            print "each_cpu_data [ %d ] :" % tarbz2_idx
+                            pprint.pprint(each_cpu_data[tarbz2_idx])
                         sys.stderr.write("★☆☆☆ super_netperf2 の試行回数毎の CPU 数が異なるようです。(%d,%d)\n" \
                                          % (len(tmp_each_cpu_data),len(each_cpu_data[tarbz2_idx])))
                         sys.stderr.write("★☆☆☆ %s の処理をスキップします。\n" % get_resources_dirtype)
@@ -1076,8 +1073,9 @@ def format_each_cpu_usage_result(result):
 """ main """
 def main():
 
-    print "★ netperf_tool.py の処理を開始します"
+    if INFO: print "★ netperf_tool.py の処理を開始します"
     results = {}
+    result_items = {}
 
     # TEST_CASE_LIST_DIR 配下の比較パターンとなるディレクトリのリスト (./{TEST_CASE_LIST_DIR}/ 配下のディレクトリ)
     test_case_list_dir_lists = []
@@ -1092,8 +1090,9 @@ def main():
     
     # test_case_list_dir_lists 分繰り返し (./{TEST_CASE_LIST_DIR}/ 配下の比較パターンディレクトリ数)
     for i in range(len(test_case_list_dir_lists)):
+            results[test_case_list_dir_lists[i]] = {}
 
-            print "★★ %s の処理を開始" % test_case_list_dir_lists[i]
+            if INFO: print "★★ %s の処理を開始" % test_case_list_dir_lists[i]
 
             # TEST_CASE_LIST 内に記載された試験項目に対応するディレクトリのリスト 
             test_case_lists = []
@@ -1129,7 +1128,7 @@ def main():
                 if VERBOSE: print "★★ netperf"
 
                 # netperf_result メイン処理呼び出し
-                results['netperf'] = proc_netperf_result(test_case_lists, result_dir_path)
+                results[test_case_list_dir_lists[i]]['netperf'] = proc_netperf_result(test_case_lists, result_dir_path)
 
             ### CPU 使用率の処理部
             ### (NETPERF_TOOL_MODE が 1:netperf 以外)
@@ -1142,16 +1141,15 @@ def main():
                 for j in range(len(CPU_USAGE_TEST_PATTERN)):
                     result = proc_cpu_usage_result(test_case_lists, result_dir_path, CPU_USAGE_TEST_PATTERN[j])
                     if result is not None:
-                        results[CPU_USAGE_TEST_PATTERN[j]] = result
+                        result_items[CPU_USAGE_TEST_PATTERN[j]] = result
 
-            out_file_name = OUTPUT_DIR + '/cpu_usage_' + test_case_list_dir_lists[i] + '.json'
-            with open(out_file_name, mode='w') as file:
-                print("write results >> %s" % out_file_name);
-                file.write(json.dumps(results));
+            results[test_case_list_dir_lists[i]]['cpu_usage'] = result_items;
+            result_items = {}
 
-            print "★★ %s の処理を終了" % test_case_list_dir_lists[i]
+            if INFO: print "★★ %s の処理を終了" % test_case_list_dir_lists[i]
 
-    print "★ netperf_tool.py の処理を終了します"
+    print(json.dumps(results))
+    if INFO: print "★ netperf_tool.py の処理を終了します"
 
 if __name__ == '__main__':
     main()
