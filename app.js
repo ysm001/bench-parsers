@@ -7,9 +7,10 @@ const http = require('http');
 const express = require('express');
 const app = express();
 const server = http.createServer(app);
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 function getLogDirs(jobName, buildNumber, type) {
-  const logsPath = `data/logs/${jobName}-${buildNumber}/${type}`;
+  const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}`;
 
   return new Promise((resolve, reject) => {
     fs.readdir(logsPath, (err, files) => {
@@ -55,4 +56,5 @@ app.get('/logs/:jobname/:buildnumber/:type.json', function(req, res) {
   });
 });
 
-server.listen(9001);
+server.listen(config.port);
+console.log(`listen: ${config.port}`);
