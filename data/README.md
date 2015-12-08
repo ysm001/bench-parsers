@@ -1,0 +1,1 @@
+${JOB_NAME}-${BUILD_NUMBER}
