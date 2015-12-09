@@ -10,8 +10,11 @@ const server = http.createServer(app);
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 function getLogDirs(jobName, buildNumber, type, singleOrMulti) {
-  const singleOrMultiDir = singleOrMulti ? `/${singleOrMulti}` : '';
-  const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}${singleOrMultiDir}`;
+  if (singleOrMulti) {
+    return new Promise((resolve, reject) => { resolve([`${config.logsDir}/${jobName}-${buildNumber}/${type}/${singleOrMulti}`]) });
+  }
+
+  const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}`;
 
   return new Promise((resolve, reject) => {
     fs.readdir(logsPath, (err, files) => {
@@ -28,22 +31,21 @@ function getLogDirs(jobName, buildNumber, type, singleOrMulti) {
   });
 }
 
-function execNetperfParser(targets) {
-  const parser = 'src/parsers/netperf.py';
-}
-
 function execParser(type, targets) {
-  const parser = `src/parsers/${type}.rb`;
+  const isNetPerf = type == 'netperf';
+  const ext = isNetPerf ? '.py' : '.rb';
+  const runtime = isNetPerf ? 'python' : 'ruby';
+  const parser = `src/parsers/${type}${ext}`;
   const oldLog = targets[0];
   const newLog = targets[1];
-  const query = `ruby ${parser} ${oldLog} ${newLog}`;
+  const query = !isNetPerf ? `${runtime} ${parser} ${oldLog} ${newLog}` : `${runtime} ${parser} ${targets[0]}`;
 
   console.log(query);
   return new Promise((resolve, reject) => {
     exec(query, function (error, stdout, stderr) {
-      if (error !== null) reject(error);
-      else if (stderr) reject(stderr);
-      else if (stdout) resolve(stdout);
+      if (error !== null) return reject(error);
+      if (stderr) console.log(stderr);
+      if (stdout) resolve(stdout);
     })
   });
 }
