@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const path = require('path');
+const PromiseDir = require('../libs/promise-dir.js');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = class LogPath {
@@ -11,23 +11,7 @@ module.exports = class LogPath {
     }
 
     const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}`;
-    return LogPath.getDirs(logsPath);
-  }
-
-  static getDirs(logsPath) {
-    return new Promise((resolve, reject) => {
-      fs.readdir(logsPath, (err, files) => {
-        if (err) return reject(err);
-
-        const dirs = files.map((file) => {
-          return path.join(logsPath, file);
-        }).filter((file) => {
-          return fs.statSync(file).isDirectory();
-        });
-
-        resolve(dirs);
-      })
-    });
+    return PromiseDir.getDirs(logsPath);
   }
 
   static getNetPerfLogDir(jobName, buildNumber, type, singleOrMulti) {
