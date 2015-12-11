@@ -10,12 +10,12 @@ module.exports = class LogPath {
       return LogPath.getNetPerfLogDir(jobName, buildNumber, type, singleOrMulti);
     }
 
-    const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}`;
+    const logsPath = `${config.logsDir}/${jobName}/${buildNumber}/${type}`;
     return PromiseDir.getDirs(logsPath);
   }
 
   static getNetPerfLogDir(jobName, buildNumber, type, singleOrMulti) {
-    return new Promise((resolve, reject) => { resolve([`${config.logsDir}/${jobName}-${buildNumber}/${type}/${singleOrMulti}`]) });
+    return new Promise((resolve, reject) => { resolve([`${config.logsDir}/${jobName}/${buildNumber}/${type}/${singleOrMulti}`]) });
   }
 
   static isNetPerf(type) {

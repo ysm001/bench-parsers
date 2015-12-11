@@ -1,0 +1,7 @@
+{
+  "jenkinsJobName": "SAMPLE_JOB",
+  "jenkinsBuildNumber": "100",
+  "old": "RHEL6.6",
+  "new": "RHEL6.7",
+  "createdAt": "2005-08-22_23-59-59"
+}

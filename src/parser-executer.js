@@ -24,7 +24,7 @@ module.exports = class ParserExecuter {
 
     console.log(query);
     return new Promise((resolve, reject) => {
-      exec(query, function (error, stdout, stderr) {
+      exec(query, (error, stdout, stderr) => {
         if (error !== null) return reject(error);
         if (stderr) console.log(stderr);
         if (stdout) resolve(stdout);
