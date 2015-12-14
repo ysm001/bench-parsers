@@ -59,7 +59,7 @@ module.exports = class SecondLevelLogValidator extends Validator{
 
     Object.keys(dirChildren).forEach((fileName) => {
       if (fileName.split('.').pop() != this.logFileExt) {
-        this.throwError(`Invalid file is found under ${dir.name}. Only ".${this.logFileExt}" files are allowed. (${dir.name}${fileName})`);
+        this.throwError(`Invalid file is found in ${dir.name}. Only ".${this.logFileExt}" files are allowed. (${dir.name}${fileName})`);
       }
     });
   }
