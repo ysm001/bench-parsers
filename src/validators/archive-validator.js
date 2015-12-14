@@ -1,29 +1,35 @@
 'use strict';
 
-const FioValidator = require('./fio-validator.js');
-const KernbenchValidator = require('./kernbench-validator.js');
-const LmbenchValidator = require('./lmbench-validator.js');
-const NetperfValidator = require('./netperf-validator.js');
 const MetaJsonValidator = require('./metajson-validator.js');
+const RootValidator = require('./root-validator.js');
+const LogValidatorFactory = require('./log-validator-factory.js');
+const Validator = require('./validator.js');
 
-module.exports = class ArchiveValidator {
+module.exports = class ArchiveValidator extends Validator {
   constructor() {
-    this.fioValidator = new FioValidator();
-    this.kernbenchValidator = new KernbenchValidator();
-    this.lmbenchValidator = new LmbenchValidator();
-    this.netperfValidator = new NetperfValidator();
+    super();
+
+    this.rootValidator = new RootValidator();
     this.metaJsonValidator = new MetaJsonValidator();
   }
 
-  validate(file, jenkinsJobName, jenkinsBuildNumber) {
+  validate(file) {
     return new Promise((resolve, reject) => {
       const metaJson = this.metaJsonValidator.validate(file);
-      this.fioValidator.validate(file, metaJson);
-      this.kernbenchValidator.validate(file, metaJson);
-      this.lmbenchValidator.validate(file, metaJson);
-      this.netperfValidator.validate(file, metaJson);
+      this.rootValidator.validate(file, metaJson);
+      this.validateLogs(file, metaJson);
 
       resolve(metaJson);
+    });
+  }
+
+  validateLogs(file, metaJson) {
+    const directories = this.getDirectories(file);
+
+    Object.keys(directories).forEach((directory) => {
+      const validator = LogValidatorFactory.create(directory);
+      console.log(directory);
+      validator.validate(file, metaJson);
     });
   }
 }

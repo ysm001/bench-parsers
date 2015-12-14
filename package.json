@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ysm001/bench-parsers#readme",
   "dependencies": {
+    "array-sugar": "^1.2.2",
     "express": "^4.13.3",
     "jszip": "^2.5.0",
     "mkdirp": "^0.5.1",

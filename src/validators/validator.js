@@ -28,7 +28,7 @@ module.exports = class Validator {
     throw new ValidationError(object);
   }
 
-  filterByType(fileObject, type) {
+  getByType(fileObject, type) {
     let result = {};
 
     Object.keys(fileObject).forEach((key) => {
@@ -40,20 +40,20 @@ module.exports = class Validator {
     return result;
   }
 
-  filterDirectory(fileObject) {
-    return this.filterByType(fileObject, 'directory');
+  getDirectories(fileObject) {
+    return this.getByType(fileObject, 'directory');
   }
 
-  filterFile(fileObject) {
-    return this.filterByType(fileObject, 'file');
+  getFiles(fileObject) {
+    return this.getByType(fileObject, 'file');
   }
 
   hasDirectory(fileObject) {
-    return Object.keys(this.filterDirectory(fileObject.children)).length != 0;
+    return Object.keys(this.getDirectories(fileObject.children)).length != 0;
   }
 
   hasFile(fileObject) {
-    return Object.keys(this.filterFile(fileObject.children)).length != 0;
+    return Object.keys(this.getFiles(fileObject.children)).length != 0;
   }
 
   validateDirectoryOnly(fileObject) {

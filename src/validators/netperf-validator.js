@@ -20,7 +20,7 @@ module.exports = class NetperfValidator extends SecondLevelLogValidator {
 
     const root = file[this.rootKey].children;
 
-    const directories = this.filterDirectory(root);
+    const directories = this.getDirectories(root);
     Object.keys(directories).forEach((key) => {
       this.validateSubRootDirStructure(directories[key], metaJson);
     });

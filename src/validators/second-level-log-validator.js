@@ -26,8 +26,8 @@ module.exports = class SecondLevelLogValidator extends Validator{
   }
 
   validateCompareTargetDirStructure(oldDir, newDir, metaJson) {
-    const oldDirChildren = this.filterDirectory(oldDir.children);
-    const newDirChildren = this.filterDirectory(newDir.children);
+    const oldDirChildren = this.getDirectories(oldDir.children);
+    const newDirChildren = this.getDirectories(newDir.children);
     const oldDirChildrenKeys = Object.keys(oldDirChildren);
     const newDirChildrenKeys = Object.keys(oldDirChildren);
 
@@ -50,8 +50,8 @@ module.exports = class SecondLevelLogValidator extends Validator{
   }
 
   validateCompareTarget(dir, metaJson) {
-    const dirChildren = this.filterFile(dir.children);
-    const dirs = this.filterDirectory(dir.children);
+    const dirChildren = this.getFiles(dir.children);
+    const dirs = this.getDirectories(dir.children);
 
     if (this.hasDirectory(dir)) {
       this.throwError(`Directory is found in ${dir.name}. Only ".${this.logFileExt}" files are allowed.`);

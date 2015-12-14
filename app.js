@@ -12,6 +12,7 @@ const ParserExecuter = require('./src/parser-executer.js');
 const Zip = require('./libs/zip.js');
 const LogArchiveSaver = require('./src/log-archive-saver.js');
 const ArchiveValidator = require('./src/validators/archive-validator.js');
+require('array-sugar');
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
