@@ -13,12 +13,13 @@ module.exports = class LogArchiveSaver {
   }
 
   static unzip(archive, metaJson) {
-    console.log(archive);
     const outputPath = LogArchiveSaver.makePath(config.logsDir, metaJson);
     const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, metaJson);
 
     if (!fs.existsSync(outputPath)) {
       mkdirp.sync(outputPath)
+    } else {
+      throw new Error(`Log files are already exist. (JobName=${metaJson.jenkinsJobName} BuildNumber=${metaJson.jenkinsBuildNumber})`);
     }
 
     const query = `unzip ${tmpFilePath} -d ${outputPath}`;
@@ -28,7 +29,8 @@ module.exports = class LogArchiveSaver {
       exec(query, (error, stdout, stderr) => {
         if (error !== null) return reject(error);
         if (stderr) console.log(stderr);
-        if (stdout) resolve(stdout);
+
+        resolve(outputPath);
       });
     });
   }
