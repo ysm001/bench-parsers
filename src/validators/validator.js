@@ -58,7 +58,7 @@ module.exports = class Validator {
 
   validateDirectoryOnly(fileObject) {
     if (this.hasDirectory(fileObject)) {
-      this.throwError(`Directory is found under ${fileObject.name}. Only files are allowed.`);
+      this.throwError(`Directory is found in ${fileObject.name}. Only files are allowed.`);
     }
   }
 

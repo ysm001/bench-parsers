@@ -54,7 +54,7 @@ module.exports = class SecondLevelLogValidator extends Validator{
     const dirs = this.filterDirectory(dir.children);
 
     if (this.hasDirectory(dir)) {
-      this.throwError(`Directory is found under ${dir.name}. Only ".${this.logFileExt}" files are allowed.`);
+      this.throwError(`Directory is found in ${dir.name}. Only ".${this.logFileExt}" files are allowed.`);
     }
 
     Object.keys(dirChildren).forEach((fileName) => {
