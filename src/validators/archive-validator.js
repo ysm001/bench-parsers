@@ -15,7 +15,7 @@ module.exports = class ArchiveValidator {
     this.metaJsonValidator = new MetaJsonValidator();
   }
 
-  validate(file) {
+  validate(file, jenkinsJobName, jenkinsBuildNumber) {
     return new Promise((resolve, reject) => {
       const metaJson = this.metaJsonValidator.validate(file);
       this.fioValidator.validate(file, metaJson);

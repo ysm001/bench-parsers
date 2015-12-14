@@ -6,20 +6,20 @@ const mkdirp = require('mkdirp');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 module.exports = class LogArchiveSaver {
-  static save(archive, metaJson) {
-    return LogArchiveSaver.saveTmp(archive, metaJson).then(() => {
-      return LogArchiveSaver.unzip(archive, metaJson);
+  static save(archive, jenkinsJobName, jenkinsBuildNumber) {
+    return LogArchiveSaver.saveTmp(archive, jenkinsJobName, jenkinsBuildNumber).then(() => {
+      return LogArchiveSaver.unzip(archive, jenkinsJobName, jenkinsBuildNumber);
     });
   }
 
-  static unzip(archive, metaJson) {
-    const outputPath = LogArchiveSaver.makePath(config.logsDir, metaJson);
-    const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, metaJson);
+  static unzip(archive, jenkinsJobName, jenkinsBuildNumber) {
+    const outputPath = LogArchiveSaver.makePath(config.logsDir, jenkinsJobName, jenkinsBuildNumber);
+    const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, jenkinsJobName, jenkinsBuildNumber);
 
     if (!fs.existsSync(outputPath)) {
       mkdirp.sync(outputPath)
     } else {
-      throw new Error(`Log files are already exist. (JobName=${metaJson.jenkinsJobName} BuildNumber=${metaJson.jenkinsBuildNumber})`);
+      throw new Error(`Log files are already exist. (JobName=${jenkinsJobName} BuildNumber=${jenkinsBuildNumber})`);
     }
 
     const query = `unzip ${tmpFilePath} -d ${outputPath}`;
@@ -35,9 +35,9 @@ module.exports = class LogArchiveSaver {
     });
   }
 
-  static saveTmp(archive, metaJson) {
-    const tmpPath = LogArchiveSaver.makeTmpPath(archive, metaJson);
-    const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, metaJson);
+  static saveTmp(archive, jenkinsJobName, jenkinsBuildNumber) {
+    const tmpPath = LogArchiveSaver.makeTmpPath(archive, jenkinsJobName, jenkinsBuildNumber);
+    const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, jenkinsJobName, jenkinsBuildNumber);
 
     if (!fs.existsSync(tmpPath)) {
       mkdirp.sync(tmpPath);
@@ -52,15 +52,15 @@ module.exports = class LogArchiveSaver {
     });
   }
 
-  static makePath(root, metaJson) {
-    return `${root}/${metaJson.jenkinsJobName}/${metaJson.jenkinsBuildNumber}/`;
+  static makePath(root, jenkinsJobName, jenkinsBuildNumber) {
+    return `${root}/${jenkinsJobName}/${jenkinsBuildNumber}/`;
   }
 
-  static makeTmpPath(archive, metaJson) {
-    return LogArchiveSaver.makePath(config.tmpDir, metaJson);
+  static makeTmpPath(archive, jenkinsJobName, jenkinsBuildNumber) {
+    return LogArchiveSaver.makePath(config.tmpDir, jenkinsJobName, jenkinsBuildNumber);
   }
 
-  static makeTmpFilePath(archive, metaJson) {
-    return `${LogArchiveSaver.makePath(config.tmpDir, metaJson)}/${archive.originalname}`;
+  static makeTmpFilePath(archive,jenkinsJobName, jenkinsBuildNumber) {
+    return `${LogArchiveSaver.makePath(config.tmpDir, jenkinsJobName, jenkinsBuildNumber)}/${archive.originalname}`;
   }
 }

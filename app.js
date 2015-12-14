@@ -32,14 +32,21 @@ app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, r
   const params = req.params;
   const files = new Zip().unzip(req.file.buffer);
   const validator = new ArchiveValidator();
-  const metaJson = JSON.parse(files['meta.json'].asText());
 
-  validator.validate(files).then(() => {
-    return LogArchiveSaver.save(req.file, metaJson);
+  validator.validate(files, params.jobname, params.buildnumber).then(() => {
+    return LogArchiveSaver.save(req.file, params.jobname, params.buildnumber);
   }).then((outputPath) => {
     console.log(outputPath);
+    res.send({result: true});
   }).catch((e) => {
     console.log(e);
+    res.send({
+      result: false,
+      error: {
+        type: e.name,
+        message: e.message
+      }
+    });
   });
 });
 

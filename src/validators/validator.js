@@ -1,6 +1,6 @@
 'use strict';
 
-const ValidatorError = require('./validation-error.js');
+const ValidationError = require('./validation-error.js');
 
 module.exports = class Validator {
   validate() {
