@@ -1,8 +1,0 @@
-MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.1.201 () port 0 AF_INET
-Socket  Message  Elapsed      Messages                
-Size    Size     Time         Okay Errors   Throughput
-bytes   bytes    secs            #      #   10^6bits/sec
-
-124928     978   60.00     48936805      0    6381.34
-124928           60.00     47971966           6255.52
-

@@ -53,7 +53,7 @@ module.exports = class LogArchiveSaver {
   }
 
   static makePath(root, jenkinsJobName, jenkinsBuildNumber) {
-    return `${root}/${jenkinsJobName}/${jenkinsBuildNumber}/`;
+    return `${root}/${jenkinsJobName}-${jenkinsBuildNumber}/`;
   }
 
   static makeTmpPath(archive, jenkinsJobName, jenkinsBuildNumber) {

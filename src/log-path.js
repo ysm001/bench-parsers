@@ -10,7 +10,7 @@ module.exports = class LogPath {
       return LogPath.getNetPerfLogDir(jobName, buildNumber, type, singleOrMulti);
     }
 
-    const logsPath = `${config.logsDir}/${jobName}/${buildNumber}/${type}`;
+    const logsPath = `${config.logsDir}/${jobName}-${buildNumber}/${type}`;
     return PromiseDir.getDirs(logsPath);
   }
 
