@@ -3,9 +3,26 @@
 const fs = require('fs');
 const exec = require('child_process').exec;
 const mkdirp = require('mkdirp');
-const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+const config = require('../config/directory.json');
+const ParserExecuter = require('./parser-executer.js');
+const Log = require('./models/log.js');
 
 module.exports = class LogArchiveSaver {
+  static saveToDB(jenkinsJobName, jenkinsBuildNumber) {
+    return ParserExecuter.execAll(jenkinsJobName, jenkinsBuildNumber).then((res) => {
+      const log = new Log({
+        old: 'old',
+        new: 'new',
+        jenkins_job_name: jenkinsJobName,
+        jenkins_build_number: jenkinsBuildNumber,
+        data: res
+      });
+
+      log.markModified('data');
+      log.save();
+    });
+  }
+
   static save(archive, jenkinsJobName, jenkinsBuildNumber) {
     return LogArchiveSaver.saveTmp(archive, jenkinsJobName, jenkinsBuildNumber).then(() => {
       return LogArchiveSaver.unzip(archive, jenkinsJobName, jenkinsBuildNumber);

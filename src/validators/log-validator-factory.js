@@ -18,7 +18,8 @@ module.exports = class LogValidatorFactory {
         return new KernbenchValidator();
       case LogType.LMBENCH:
         return new LmbenchValidator();
-      case LogType.NETPERF:
+      case LogType.NETPERF_SINGLE:
+      case LogType.NETPERF_MULTI:
         return new NetperfValidator();
       default:
         throw new Error(`Invalid log type. (${type})`);

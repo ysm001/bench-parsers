@@ -1,0 +1,7 @@
+{
+  "development": {
+    "host": "localhost",
+    "port": "27017",
+    "database": "verification_report_db"
+  }
+}

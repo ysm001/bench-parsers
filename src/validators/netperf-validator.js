@@ -12,6 +12,7 @@ module.exports = class NetperfValidator extends SecondLevelLogValidator {
   }
 
   validate(file, metaJson) {
+    return;
     this.validateRootDirStructure(file, metaJson);
   }
 
