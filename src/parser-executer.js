@@ -4,6 +4,7 @@ const fs = require('fs');
 const exec = require('child_process').exec;
 const config = require('../config/directory.json').development;
 
+const PromiseDir = require('../libs/promise-dir.js');
 const LogType = require('./log-type.js');
 const LogPath = require('./log-path.js');
 const co = require('co');
@@ -13,18 +14,18 @@ const wait = require('co-wait');
 module.exports = class ParserExecuter {
   static get interval() { return 500; }
 
-  static exec(jobName, buildNumber, type) {
-    return LogPath.getLogDirs(jobName, buildNumber, type).then((logDirs) => {
+  static exec(logPath, type) {
+    return PromiseDir.getDirs(`${logPath}/${type}`).then((logDirs) => {
       return ParserExecuter.execParser(type, logDirs);
     });
   }
 
-  static execAll(jenkinsJobName, jenkinsBuildNumber) {
+  static execAll(logPath) {
     let result = {};
 
     return foreach(LogType.all, function *(type) {
       yield wait(ParserExecuter.interval);
-      result[type] = JSON.parse(yield ParserExecuter.exec(jenkinsJobName, jenkinsBuildNumber, type));
+      result[type] = JSON.parse(yield ParserExecuter.exec(logPath, type));
     }).then(() => {
       return result;
     });

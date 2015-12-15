@@ -3,12 +3,22 @@
 const mongoose = require('mongoose');
 
 const LogSchema = new mongoose.Schema({
-  jenkins_job_name: { type: String },
-  jenkins_build_number: { type: String },
+  jenkinsJobName: { type: String },
+  jenkinsBuildNumber: { type: String },
   old: { type: String },
   new: { type: String },
-  created_at: { type: Date },
   data: mongoose.Schema.Types.Mixed
+}, {
+  timestamps: true
+});
+
+LogSchema.static('findByJobNameAndBuildNumber', function(jobName, buildNumber) {
+  return this 
+    .where({jenkinsJobName: jobName, jenkinsBuildNumber: buildNumber})
+    .sort('-created_at')
+    .then((results) => {
+      return results[0];
+    });
 });
 
 module.exports = mongoose.model('Log', LogSchema);

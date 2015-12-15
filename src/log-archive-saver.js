@@ -1,20 +1,22 @@
 'use strict';
 
 const fs = require('fs');
+const fsp = require('fs-promise');
 const exec = require('child_process').exec;
 const mkdirp = require('mkdirp');
 const config = require('../config/directory.json');
 const ParserExecuter = require('./parser-executer.js');
 const Log = require('./models/log.js');
+const LogPath = require('./log-path.js');
 
 module.exports = class LogArchiveSaver {
-  static saveToDB(jenkinsJobName, jenkinsBuildNumber) {
-    return ParserExecuter.execAll(jenkinsJobName, jenkinsBuildNumber).then((res) => {
+  static saveToDB(logPath, jenkinsJobName, jenkinsBuildNumber) {
+    return LogArchiveSaver.logFilesToJSON(logPath).then((res) => {
       const log = new Log({
         old: 'old',
         new: 'new',
-        jenkins_job_name: jenkinsJobName,
-        jenkins_build_number: jenkinsBuildNumber,
+        jenkinsJobName: jenkinsJobName,
+        jenkinsBuildNumber: jenkinsBuildNumber,
         data: res
       });
 
@@ -23,23 +25,25 @@ module.exports = class LogArchiveSaver {
     });
   }
 
+  static logFilesToJSON(logPath) {
+    return ParserExecuter.execAll(logPath);
+  }
+
   static save(archive, jenkinsJobName, jenkinsBuildNumber) {
-    return LogArchiveSaver.saveTmp(archive, jenkinsJobName, jenkinsBuildNumber).then(() => {
-      return LogArchiveSaver.unzip(archive, jenkinsJobName, jenkinsBuildNumber);
+    return LogArchiveSaver.saveToTmp(archive, jenkinsJobName, jenkinsBuildNumber).then((tmpPath) => {
+      const outputPath = `${tmpPath.path}/unarchived`;
+      const tmpFilePath = `${tmpPath.path}/${tmpPath.fileName}`;
+
+      return LogArchiveSaver.unzip(tmpFilePath, outputPath, jenkinsJobName, jenkinsBuildNumber);
+    }).then((path) => {
+      return LogArchiveSaver.saveToDB(path, jenkinsJobName, jenkinsBuildNumber);
     });
   }
 
-  static unzip(archive, jenkinsJobName, jenkinsBuildNumber) {
-    const outputPath = LogArchiveSaver.makePath(config.logsDir, jenkinsJobName, jenkinsBuildNumber);
-    const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, jenkinsJobName, jenkinsBuildNumber);
+  static unzip(archivePath, outputPath, jenkinsJobName, jenkinsBuildNumber) {
+    mkdirp.sync(outputPath);
 
-    if (!fs.existsSync(outputPath)) {
-      mkdirp.sync(outputPath)
-    } else {
-      throw new Error(`Log files are already exist. (JobName=${jenkinsJobName} BuildNumber=${jenkinsBuildNumber})`);
-    }
-
-    const query = `unzip ${tmpFilePath} -d ${outputPath}`;
+    const query = `unzip ${archivePath} -d ${outputPath}`;
     console.log(query);
 
     return new Promise((resolve, reject) => {
@@ -52,32 +56,20 @@ module.exports = class LogArchiveSaver {
     });
   }
 
-  static saveTmp(archive, jenkinsJobName, jenkinsBuildNumber) {
-    const tmpPath = LogArchiveSaver.makeTmpPath(archive, jenkinsJobName, jenkinsBuildNumber);
-    const tmpFilePath = LogArchiveSaver.makeTmpFilePath(archive, jenkinsJobName, jenkinsBuildNumber);
+  static saveToTmp(archive, jenkinsJobName, jenkinsBuildNumber) {
+    const fileName = archive.originalname;
+    const tmpPath = LogPath.makeTmpPath(jenkinsJobName, jenkinsBuildNumber);
+    const tmpFilePath = `${tmpPath}/${fileName}`;
 
     if (!fs.existsSync(tmpPath)) {
       mkdirp.sync(tmpPath);
     }
 
-    return new Promise((resolve, reject) => {
-      fs.writeFile(tmpFilePath, archive.buffer, (err) => {
-        if (err) reject(err);
-
-        resolve();
-      })
+    return fsp.writeFile(tmpFilePath, archive.buffer).then(() => {
+      return {
+        path: tmpPath,
+        fileName: fileName
+      };
     });
-  }
-
-  static makePath(root, jenkinsJobName, jenkinsBuildNumber) {
-    return `${root}/${jenkinsJobName}-${jenkinsBuildNumber}/`;
-  }
-
-  static makeTmpPath(archive, jenkinsJobName, jenkinsBuildNumber) {
-    return LogArchiveSaver.makePath(config.tmpDir, jenkinsJobName, jenkinsBuildNumber);
-  }
-
-  static makeTmpFilePath(archive,jenkinsJobName, jenkinsBuildNumber) {
-    return `${LogArchiveSaver.makePath(config.tmpDir, jenkinsJobName, jenkinsBuildNumber)}/${archive.originalname}`;
   }
 }

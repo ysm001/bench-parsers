@@ -13,6 +13,7 @@ const Zip = require('./libs/zip.js');
 const LogArchiveSaver = require('./src/log-archive-saver.js');
 const ArchiveValidator = require('./src/validators/archive-validator.js');
 const db = require('./src/db.js');
+const Log = require('./src/models/log.js');
 require('array-sugar');
 
 app.use((req, res, next) => {
@@ -21,13 +22,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/logs/:jobname/:buildnumber/:type/:singleormulti?.json', (req, res) => {
+app.get('/logs/:jobname/:buildnumber/:type.json', (req, res) => {
   const params = req.params;
 
-  ParserExecuter.exec(params.jobname, params.buildnumber, params.type).then((result) => {
-    res.send(result);
-  }).catch((error) => {
-    res.send({error: error.toString()});
+  Log.findByJobNameAndBuildNumber(params.jobname, params.buildnumber).then((result) => {
+    console.log(result.createdAt);
+    res.send(result.data[params.type]);
+  }).onReject((err) => {
+    res.send(err);
   });
 });
 
@@ -38,13 +40,10 @@ app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, r
 
   validator.validate(files, params.jobname, params.buildnumber).then(() => {
     return LogArchiveSaver.save(req.file, params.jobname, params.buildnumber);
-  }).then((outputPath) => {
-    console.log(outputPath);
-    return LogArchiveSaver.saveToDB(params.jobname, params.buildnumber);
   }).then(() => {
     res.send({result: true});
   }).catch((e) => {
-    console.log(e);
+    console.log(e.stack);
     res.send({
       result: false, error: { type: e.name, message: e.message }
     });
