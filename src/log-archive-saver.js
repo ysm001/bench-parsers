@@ -10,11 +10,11 @@ const Log = require('./models/log.js');
 const LogPath = require('./log-path.js');
 
 module.exports = class LogArchiveSaver {
-  static saveToDB(logPath, jenkinsJobName, jenkinsBuildNumber) {
+  static saveToDB(logPath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
     return LogArchiveSaver.logFilesToJSON(logPath).then((res) => {
       const log = Log.saveOrUpdate({
-        old: 'old',
-        new: 'new',
+        old: oldVersion,
+        new: newVersion,
         jobName: jenkinsJobName,
         buildNumber: jenkinsBuildNumber,
         data: res
@@ -26,14 +26,14 @@ module.exports = class LogArchiveSaver {
     return ParserExecuter.execAll(logPath);
   }
 
-  static save(archive, jenkinsJobName, jenkinsBuildNumber) {
+  static save(archive, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
     return LogArchiveSaver.saveToTmp(archive, jenkinsJobName, jenkinsBuildNumber).then((tmpPath) => {
       const outputPath = `${tmpPath.path}/unarchived`;
       const tmpFilePath = `${tmpPath.path}/${tmpPath.fileName}`;
 
       return LogArchiveSaver.unzip(tmpFilePath, outputPath, jenkinsJobName, jenkinsBuildNumber);
     }).then((path) => {
-      return LogArchiveSaver.saveToDB(path, jenkinsJobName, jenkinsBuildNumber);
+      return LogArchiveSaver.saveToDB(path, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion);
     });
   }
 

@@ -13,15 +13,11 @@ module.exports = class Validator {
   }
 
   existsKeys(object, keys, objectName) {
-    const errors = keys.map((key) => {
+    const errors = keys.forEach((key) => {
       if (!(key in object)) {
-        return `key "${key}" does not exist in ${objectName}.`;
+        this.throwError(`"${key}" does not exist in ${objectName}.`);
       }
-    }).filter((e) => { return e != null; });
-
-    if (errors.length != 0) {
-      this.throwError(errors);
-    }
+    });
   }
 
   throwError(object) {

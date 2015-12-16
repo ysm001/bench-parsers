@@ -14,7 +14,7 @@ const LogSchema = new mongoose.Schema({
 
 LogSchema.static('findByJobNameAndBuildNumber', function(jobName, buildNumber) {
   return this 
-    .where({jenkinsJobName: jobName, jenkinsBuildNumber: buildNumber})
+    .where({jobName: jobName, buildNumber: buildNumber})
     .sort('-created_at')
     .then((results) => {
       return results[0];

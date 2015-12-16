@@ -54,11 +54,12 @@ app.get('/logs/:jobname/:buildnumber/:type.json', (req, res) => {
 
 app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, res) => {
   const params = req.params;
+  const body = req.body;
   const files = new Zip().unzip(req.file.buffer);
   const validator = new ArchiveValidator();
 
-  validator.validate(files, params.jobname, params.buildnumber).then(() => {
-    return LogArchiveSaver.save(req.file, params.jobname, params.buildnumber);
+  validator.validate(files, body.oldVersion, body.newVersion).then(() => {
+    return LogArchiveSaver.save(req.file, params.jobname, params.buildnumber, body.oldVersion, body.newVersion);
   }).then(() => {
     res.send({result: true});
   }).catch((e) => {
