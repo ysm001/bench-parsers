@@ -3,8 +3,8 @@
 const mongoose = require('mongoose');
 
 const LogSchema = new mongoose.Schema({
-  jenkinsJobName: { type: String },
-  jenkinsBuildNumber: { type: String },
+  jobName: { type: String },
+  buildNumber: { type: String },
   old: { type: String },
   new: { type: String },
   data: mongoose.Schema.Types.Mixed
@@ -21,14 +21,10 @@ LogSchema.static('findByJobNameAndBuildNumber', function(jobName, buildNumber) {
     });
 });
 
-LogSchema.static('findAll', function(jobName, buildNumber) {
-  return this.find('jenkinsJobName');
-});
-
 LogSchema.static('saveOrUpdate', function(params) {
   return this.findOneAndUpdate({
-    jenkinsJobName: params.jenkinsJobName,
-    jenkinsBuildNumber: params.jenkinsBuildNumber
+    jobName: params.jobName,
+    buildNumber: params.buildNumber
   }, params, {
     new: true,
     upsert: true

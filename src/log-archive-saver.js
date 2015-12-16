@@ -15,8 +15,8 @@ module.exports = class LogArchiveSaver {
       const log = Log.saveOrUpdate({
         old: 'old',
         new: 'new',
-        jenkinsJobName: jenkinsJobName,
-        jenkinsBuildNumber: jenkinsBuildNumber,
+        jobName: jenkinsJobName,
+        buildNumber: jenkinsBuildNumber,
         data: res
       });
     });

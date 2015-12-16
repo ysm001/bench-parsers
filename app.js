@@ -23,9 +23,21 @@ app.use((req, res, next) => {
 });
 
 app.get('/logs/summary.json', (req, res) => {
-  Log.findAll().then((result) => {
-    console.log(result);
-    res.send(result);
+  Log.find().then((logs) => {
+    const ret = logs.map((log) => {
+      return {
+        _id: log._id,
+        isPassed: true,
+        targetFirst: log.old,
+        targetSecond: log.new,
+        jobName: log.jobName,
+        buildNumber: log.buildNumber,
+        createdAt: log.createdAt,
+        updatedAt: log.updatedAt
+      }
+    });
+
+    res.send(ret);
   });
 })
 
