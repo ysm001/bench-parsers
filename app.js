@@ -14,7 +14,12 @@ const LogArchiveSaver = require('./src/log-archive-saver.js');
 const ArchiveValidator = require('./src/validators/archive-validator.js');
 const db = require('./src/db.js');
 const Log = require('./src/models/log.js');
+require('date-utils');
 require('array-sugar');
+
+const formatDate = (date) => {
+  return date.toFormat("YYYY/MM/DD HH24:MI:SS");
+}
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -23,17 +28,17 @@ app.use((req, res, next) => {
 });
 
 app.get('/logs/summary.json', (req, res) => {
-  Log.find().then((logs) => {
+  Log.find().sort({createdAt: -1}).then((logs) => {
     const ret = logs.map((log) => {
       return {
         _id: log._id,
         isPassed: true,
-        targetFirst: log.old,
-        targetSecond: log.new,
+        oldVersion: log.old,
+        newVersion: log.new,
         jobName: log.jobName,
         buildNumber: log.buildNumber,
-        createdAt: log.createdAt,
-        updatedAt: log.updatedAt
+        createdAt: formatDate(log.createdAt),
+        updatedAt: formatDate(log.updatedAt)
       }
     });
 
