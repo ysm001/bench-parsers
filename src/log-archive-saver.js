@@ -12,16 +12,13 @@ const LogPath = require('./log-path.js');
 module.exports = class LogArchiveSaver {
   static saveToDB(logPath, jenkinsJobName, jenkinsBuildNumber) {
     return LogArchiveSaver.logFilesToJSON(logPath).then((res) => {
-      const log = new Log({
+      const log = Log.saveOrUpdate({
         old: 'old',
         new: 'new',
         jenkinsJobName: jenkinsJobName,
         jenkinsBuildNumber: jenkinsBuildNumber,
         data: res
       });
-
-      log.markModified('data');
-      log.save();
     });
   }
 

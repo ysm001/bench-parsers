@@ -22,6 +22,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/logs/summary.json', (req, res) => {
+  Log.findAll().then((result) => {
+    console.log(result);
+    res.send(result);
+  });
+})
+
 app.get('/logs/:jobname/:buildnumber/:type.json', (req, res) => {
   const params = req.params;
 
