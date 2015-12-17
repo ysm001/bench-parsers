@@ -46,15 +46,28 @@ app.get('/logs/summary.json', (req, res) => {
   });
 })
 
-app.get('/logs/:jobname/:buildnumber/:type.json', (req, res) => {
-  const params = req.params;
-
-  Log.findByJobNameAndBuildNumber(params.jobname, params.buildnumber).then((result) => {
-    console.log(result.createdAt);
-    res.send(result.data[params.type]);
+const returnResult = (promise, res, type) => {
+  return promise.then((result) => {
+    if (type) {
+      res.send(result.data[type]);
+    } else {
+      res.send(result.data);
+    }
   }).onReject((err) => {
     res.send(err);
   });
+}
+
+app.get('/logs/:jobname/:buildnumber/:type.json', (req, res) => {
+  returnResult(Log.findByJobNameAndBuildNumber(req.params.jobname, req.params.buildnumber), res, req.params.type);
+});
+
+app.get('/logs/:id/:type.json', (req, res) => {
+  returnResult(Log.findOne({_id: req.params.id}), res, req.params.type);
+});
+
+app.get('/logs/:id.json', (req, res) => {
+  returnResult(Log.findOne({_id: req.params.id}), res);
 });
 
 app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, res) => {
