@@ -1,0 +1,6 @@
+{
+  "port": "9001",
+  "logsDir": "data/logs",
+  "uploadsDir": "uploads",
+  "tmpDir": "tmp"
+}
