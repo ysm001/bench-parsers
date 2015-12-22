@@ -11,7 +11,7 @@ const LogPath = require('./log-path.js');
 
 module.exports = class LogArchiveSaver {
   static saveToDB(logPath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
-    return LogArchiveSaver.logFilesToJSON(logPath).then((res) => {
+    return LogArchiveSaver.logFilesToJSON(logPath, oldVersion, newVersion).then((res) => {
       const log = Log.saveOrUpdate({
         old: oldVersion,
         new: newVersion,
@@ -22,9 +22,9 @@ module.exports = class LogArchiveSaver {
     });
   }
 
-  static logFilesToJSON(logPath) {
+  static logFilesToJSON(logPath, oldVersion, newVersion) {
     return LogArchiveSaver.getTargetTypes(logPath).then((types) => {
-      return ParserExecuter.execAll(logPath, types);
+      return ParserExecuter.execAll(logPath, types, oldVersion, newVersion);
     });
   }
 
