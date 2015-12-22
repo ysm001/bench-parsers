@@ -20,10 +20,11 @@ module.exports = class ParserExecuter {
     });
   }
 
-  static execAll(logPath) {
+  static execAll(logPath, types) {
     let result = {};
+    const targetTypes = types || LogType.all;
 
-    return foreach(LogType.all, function *(type) {
+    return foreach(types, function *(type) {
       yield wait(ParserExecuter.interval);
       result[type] = JSON.parse(yield ParserExecuter.exec(logPath, type));
     }).then(() => {
