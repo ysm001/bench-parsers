@@ -46,18 +46,14 @@ module.exports = class ParserExecuter {
   }
 
   static makeQuery(type, targets, oldVersion, newVersion) {
-    const parserName = type.split('-')[0];
-    const isNetPerf = parserName == 'netperf';
-    const ext = isNetPerf ? '.py' : '.rb';
-    const runtime = isNetPerf ? 'python' : 'ruby';
-    const parser = `scripts/parsers/${parserName}${ext}`;
-    const args = ParserExecuter.makeArgs(type, targets, isNetPerf, oldVersion, newVersion);
+    const parser = `scripts/parsers/${type}.rb`;
+    const args = ParserExecuter.makeArgs(type, targets, oldVersion, newVersion);
 
-    return `${runtime} ${parser} ${args}`;
+    return `ruby ${parser} ${args}`;
   }
 
-  static makeArgs(type, targets, isNetPerf, oldVersion, newVersion) {
-    if (!isNetPerf) {
+  static makeArgs(type, targets, oldVersion, newVersion) {
+    if (type != 'netperf') {
       const oldLog = ParserExecuter.getTarget(targets, oldVersion);
       const newLog = ParserExecuter.getTarget(targets, newVersion);
       

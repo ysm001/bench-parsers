@@ -14,11 +14,12 @@ module.exports = class ArchiveValidator extends Validator {
 
   validate(file, oldVersion, newVersion) {
     return new Promise((resolve, reject) => {
-      const metaJson = { old: oldVersion, new: newVersion };
-      this.rootValidator.validate(file, metaJson);
-      this.validateLogs(file, metaJson);
+      resolve(true);
+      // const metaJson = { old: oldVersion, new: newVersion };
+      // this.rootValidator.validate(file, metaJson);
+      // this.validateLogs(file, metaJson);
 
-      resolve(metaJson);
+      // resolve(metaJson);
     });
   }
 
