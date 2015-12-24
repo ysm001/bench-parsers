@@ -8,12 +8,14 @@ class FioLogParser
   def self.parse(file_name)
     file = File.open(file_name)
     block_size = FioLogPath.block_size(file)
+    core_num = FioLogPath.core_num(file)
     operation = File.basename(file_name, '.log')
 
     parse_throughputs(file).map { |k, v| {
       block_size: block_size,
       operation: operation,
       thread_num: k,
+      core_num: core_num,
       throughput: v
     } }
   end
@@ -38,7 +40,7 @@ class FioLogPath
     File.basename(File.dirname(file_path)).to_i
   end
 
-  def self.arch(file_path)
+  def self.core_num(file_path)
     File.basename(File.dirname(File.dirname(file_path)))
   end
 end
@@ -46,6 +48,10 @@ end
 class FioLogLoader
   def self.load(base_dir)
     log_files(base_dir).map { |l| FioLogParser.parse(l) }.flatten
+    .each_with_object({}) do |kv, h|
+      h[kv[:core_num]] = [] if (h[kv[:core_num]].nil?)
+      h[kv[:core_num]].push(kv)
+    end
   end
 
   private_class_method
@@ -60,8 +66,10 @@ end
 
 class FioLogFormatter
   def self.group_by(logs)
-    logs.group_by { |l| l[:operation] }
-      .each_with_object({}) { |(op, v), h| h[op] = group_by_thread_num(v) }
+    logs.each_with_object({}) do |(core_num, throughputs), result|
+      result[core_num] = throughputs.group_by { |l| l[:operation] }
+        .each_with_object({}) { |(op, v), h| h[op] = group_by_thread_num(v) }
+    end
   end
 
   def self.group_by_thread_num(log)
@@ -75,12 +83,11 @@ end
 
 class FioLogComparator
   def self.compare(old_logs, new_logs)
-    old_logs.map do |old_log|
-      new_log = new_logs.find { |n| same?(old_log, n) }
-      if new_log.nil?
-        new_logs.each { |n| pp "#{old_log} == #{n}: #{same?(old_log, n)}" }
+    old_logs.each_with_object({}) do |(core_num, old_throughputs), result|
+      result[core_num] = old_throughputs.map do |old_log|
+        new_log = new_logs[core_num].find { |n| same?(old_log, n) }
+        diff(old_log, new_log)
       end
-      diff(old_log, new_log)
     end
   end
 

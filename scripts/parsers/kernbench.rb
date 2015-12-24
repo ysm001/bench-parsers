@@ -21,7 +21,7 @@ end
 
 class KBLogPath
   def self.core_num(file_path)
-    File.basename(File.dirname(file_path)).to_i
+    File.basename(File.dirname(file_path))
   end
 
   def self.arch(file_path)
@@ -32,7 +32,7 @@ end
 class KBLogLoader
   def self.load(base_dir)
     log_files(base_dir).map { |l| KBLogParser.parse(l) }
-      .each_with_object({}) {|kv, h| h["#{kv[:core_num]}CPU"] = kv[:elapsed_times]}
+      .each_with_object({}) {|kv, h| h["#{kv[:core_num]}"] = kv[:elapsed_times]}
   end
 
   private_class_method
@@ -51,7 +51,7 @@ class KBLogComparator
 
   private_class_method
   def self.diff(old_log, new_log)
-    old_log.map do |(thread_num, old_elapsed_time)|
+    elapsed_times = old_log.map do |(thread_num, old_elapsed_time)|
       new_elapsed_time = new_log[thread_num]
       {
         thread_num: thread_num,
@@ -60,6 +60,8 @@ class KBLogComparator
         ratio: ((new_elapsed_time.to_f / old_elapsed_time.to_f) - 1.0) * 100
       }
     end
+
+    { elapsed_times: elapsed_times }
   end
 
   def self.same?(old_log, new_log)
