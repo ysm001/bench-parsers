@@ -10,10 +10,15 @@ module.exports = class LmbenchValidator extends SecondLevelLogValidator {
   }
 
   validateCompareTargetDirStructure(oldDir, newDir, metaJson) {
-    const oldDirFiles = this.getFiles(oldDir.children);
-    const newDirFiles = this.getFiles(newDir.children);
+    this.validateCompareTargetSubDirStructure(oldDir);
+    this.validateCompareTargetSubDirStructure(newDir);
+  }
 
-    this.existsKey(oldDirFiles, 'summary.txt', oldDir.name);
-    this.existsKey(newDirFiles, 'summary.txt', newDir.name);
+  validateCompareTargetSubDirStructure(targetDir) {
+    const directories = this.getDirectories(targetDir.children);
+    Object.keys(directories).forEach((dirName) => {
+      const files = this.getFiles(directories[dirName].children);
+      this.existsKey(files, 'summary.txt', targetDir.name);
+    });
   }
 }
