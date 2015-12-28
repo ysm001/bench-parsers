@@ -9,4 +9,7 @@ module.exports = class FioValidator extends SecondLevelLogValidator {
     this.rootKey = 'fio';
     this.directoryPostFix = 'K';
   }
+
+  validateCompareTarget(dir, metaJson) {
+  }
 }

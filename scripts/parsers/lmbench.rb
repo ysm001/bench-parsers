@@ -14,7 +14,9 @@ class LmBenchLogParser
   def self.parse(file_path)
     content = File.open(file_path).read
     blocks = filter_blocks(split_to_block(content))
-    flatten_result(blocks.map { |block| { block[:title] => parse_block(block) } })
+    core_num = LmBenchLogPath.core_num(file_path)
+    performances = flatten_result(blocks.map { |block| { block[:title] => parse_block(block) } })
+    { core_num: core_num, performances: performances }
   end
 
   def self.split_to_block(content)
@@ -117,55 +119,22 @@ class LmBenchLogParser
 end
 
 class LmBenchLogPath
-  def self.onoff_status(file_path)
-    status_str = File.basename(File.dirname(file_path))
-    status = kvm_onoff_status(status_str)
-    status = bare_onoff_status(status_str) if status.empty?
-    "#{status[:host]}" + (status[:guest] ? "/#{status[:guest]}" : '')
-  end
-
-  def self.bare_onoff_status(status_str)
-    /THP_(?<host>(ON|OFF))/.match(status_str).to_h
-  end
-
-  def self.kvm_onoff_status(status_str)
-    /THP_Host(?<host>(ON|OFF))_Guest(?<guest>(ON|OFF))/.match(status_str).to_h
-  end
-end
-
-class LmBenchLogLoader
-  def self.load(base_dir)
-    results = log_files(base_dir).each_with_object({}) do |l, h|
-      onoff_status = LmBenchLogPath.onoff_status(l)
-      h[onoff_status] = (h[onoff_status] || []) + [LmBenchLogParser.parse(l)]
-    end
-
-    averate(results)
-  end
-
-  def self.log_files(base_dir)
-    Find.find(base_dir).select { |f| FileTest.file?(f) && /[\w|\d|-]+.kern.oss.ntt.co.jp.\d+/ =~ f }
-  end
-
-  def self.averate(results) 
-    results.each_with_object({}) do |(onoff_status, result), h|
-      h[onoff_status] = {
-        average: LmBenchLogAggregator.average(result),
-        value: result
-      }
-    end
+  def self.core_num(file_path)
+    File.basename(File.dirname(file_path))
   end
 end
 
 class LmBenchLogAggregator
   def self.average(logs)
-    logs.each_with_object({}) do |(main_category, values), main|
-      main[main_category] = values.each_with_object({}) do |(sub_category, values), sub|
-        old_average = average = values.reduce(0) { |sum, value| sum + value[:old] } / values.size
-        new_average = average = values.reduce(0) { |sum, value| sum + value[:new] } / values.size
-        
-        ratio = new_average != 0 ? (new_average - old_average) * 100 / new_average : 0
-        sub[sub_category] = { values: values, averages: { old: old_average, new: new_average }, ratio: ratio }
+    logs.each_with_object({}) do |(core_num, performances), result|
+      result[core_num] = performances.each_with_object({}) do |(main_category, values), main|
+        main[main_category] = values.each_with_object({}) do |(sub_category, values), sub|
+          old_average = average = values.reduce(0) { |sum, value| sum + value[:old] } / values.size
+          new_average = average = values.reduce(0) { |sum, value| sum + value[:new] } / values.size
+
+          ratio = new_average != 0 ? (new_average - old_average) * 100 / new_average : 0
+          sub[sub_category] = { values: values, averages: { old: old_average, new: new_average }, ratio: ratio }
+        end
       end
     end
   end
@@ -173,15 +142,17 @@ end
 
 class LmBenchLogComparator
   def self.compare(old_logs, new_logs)
-    old_logs.each_with_object({}) do |(title, key_values), block|
-      block[title] = key_values.each_with_object({}) do |(key, old_values), h|
-        h[key] = new_logs[title][key].map.with_index do |new_value, idx|
-          old_value = old_values[idx]
+    old_logs.each_with_object({}) do |(core_num, performances), result|
+      result[core_num] = performances.each_with_object({}) do |(title, key_values), block|
+        block[title] = key_values.each_with_object({}) do |(key, old_values), h|
+          h[key] = new_logs[core_num][title][key].map.with_index do |new_value, idx|
+            old_value = old_values[idx]
 
-          {
-            old: old_value.to_f,
-            new: new_value.to_f,
-          }
+            {
+              old: old_value.to_f,
+              new: new_value.to_f,
+            }
+          end
         end
       end
     end
@@ -190,12 +161,13 @@ end
 
 class LmBenchLogLoader
   def self.load(base_dir)
-    LmBenchLogParser.parse(log_file(base_dir))
+    log_files(base_dir).map { |l| LmBenchLogParser.parse(l) }
+      .each_with_object({}) {|kv, h| h["#{kv[:core_num]}"] = kv[:performances]}
   end
 
   private_class_method
-  def self.log_file(base_dir)
-    "#{base_dir}/summary.txt"
+  def self.log_files(base_dir)
+    Find.find(base_dir).select { |f| FileTest.file?(f) && /.*summary.txt$/ =~ f }
   end
 end
 

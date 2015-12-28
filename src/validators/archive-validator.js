@@ -1,6 +1,5 @@
 'use strict';
 
-const MetaJsonValidator = require('./metajson-validator.js');
 const RootValidator = require('./root-validator.js');
 const LogValidatorFactory = require('./log-validator-factory.js');
 const Validator = require('./validator.js');
@@ -18,7 +17,7 @@ module.exports = class ArchiveValidator extends Validator {
       this.rootValidator.validate(file, metaJson);
       this.validateLogs(file, metaJson);
 
-      resolve(metaJson);
+      resolve();
     });
   }
 
