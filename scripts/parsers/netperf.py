@@ -96,7 +96,7 @@ import pprint
 import json
 
 # 詳細出力オプション (0:出力抑止,1:詳細出力)
-VERBOSE = 0
+VERBOSE = 1
 
 INFO = 0
 
@@ -445,6 +445,7 @@ def get_udp_rr(rlt_list):
             # 6 列目の Trans. Rate per sec を抽出
             get_value = float(rlt_files.readlines()[5].split()[5])
 
+    print get_value
     return get_value
 
 """ *.rlt 内の UDP_STREAM_SENDER を取得"""
@@ -947,7 +948,7 @@ def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtyp
                 if VERBOSE: print "★☆☆☆ %s を分析" % tarbz2_elems
 
                 # ファイル名を'_'もしくは'.'で分割
-                tarbz2_elems = re.split('[_.]', tarbz2_elems)
+                tarbz2_elems = re.split('[_]', tarbz2_elems)
 
                 # test_type を生成
                 test_type = tarbz2_elems[3] + '_' + tarbz2_elems[4]
