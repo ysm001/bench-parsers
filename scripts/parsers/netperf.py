@@ -958,7 +958,7 @@ def proc_cpu_usage_result(test_case_lists, result_dir_path, get_resources_dirtyp
                 cpu_usage_filename = get_resources_dirtype + '_' + test_type
 
                 # UDP_STREAM_xx の場合
-                if len(tarbz2_elems) > 11:
+                if len(tarbz2_elems) >= 11:
                     bufsize = tarbz2_elems[8]
                     tarbz2_idx += UDP_STREAM_BUFSIZE_DIC[bufsize]
 
