@@ -96,7 +96,7 @@ import pprint
 import json
 
 # 詳細出力オプション (0:出力抑止,1:詳細出力)
-VERBOSE = 1
+VERBOSE = 0
 
 INFO = 0
 
@@ -445,7 +445,6 @@ def get_udp_rr(rlt_list):
             # 6 列目の Trans. Rate per sec を抽出
             get_value = float(rlt_files.readlines()[5].split()[5])
 
-    print get_value
     return get_value
 
 """ *.rlt 内の UDP_STREAM_SENDER を取得"""
@@ -697,17 +696,7 @@ def create_netperf_result_file(test_case_lists, netperf_data, result_dir_path):
 
 """ create_cpu_usage_result_file """
 def create_cpu_usage_result_file(test_case_lists, cpu_usage_data, result_dir_path, get_resources_dirtype, is_all):
-    # 設定ファイル読み込み
-    inifile = ConfigParser.SafeConfigParser()
-    if os.path.exists(INIFILE_GNUPLOT):
-        inifile.read(INIFILE_GNUPLOT)
-    else:
-        sys.stderr.write("★★☆ %s が見つかりません\n" % INIFILE_GNUPLOT)
-        sys.exit()
-
-    if VERBOSE: print "★★☆ %s の設定値を読み込む" % INIFILE_GNUPLOT
-    steal_flg = inifile.getint('gnuplot_cpu_usage', 'steal')
-
+    steal_flg = 0
     if steal_flg == 0:
         target_num = len(CPU_USAGE_ITEMS) - 1
     else:

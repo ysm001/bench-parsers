@@ -14,7 +14,7 @@ results = dirs.each_with_object({}) do |dir, result|
   out, err = Open3.capture3("python #{File.expand_path(File.dirname(__FILE__))}/netperf.py #{dir}")
 
   if out == '' && err != ''
-    STDERR.print(err)
+    STDERR.puts(err)
     exit(-1)
   end
 
