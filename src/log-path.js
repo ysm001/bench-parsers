@@ -14,4 +14,11 @@ module.exports = class LogPath {
 
     return `${path}-${name}`;
   }
+
+  static makeLogPath(jenkinsJobName, jenkinsBuildNumber) {
+    const name = Date.now().toString();
+    const path = LogPath.makePath(config.logsDir, jenkinsJobName, jenkinsBuildNumber);
+
+    return `${path}-${name}`;
+  }
 }

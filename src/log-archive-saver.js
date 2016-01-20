@@ -10,14 +10,17 @@ const Log = require('./models/log.js');
 const LogPath = require('./log-path.js');
 
 module.exports = class LogArchiveSaver {
-  static saveToDB(logPath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
+  static saveToDB(logPath, archivePath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
     return LogArchiveSaver.logFilesToJSON(logPath, oldVersion, newVersion).then((res) => {
-      const log = Log.saveOrUpdate({
+      return Log.saveOrUpdate({
         old: oldVersion,
         new: newVersion,
         jobName: jenkinsJobName,
         buildNumber: jenkinsBuildNumber,
+        archivePath: archivePath,
         data: res
+      }).onReject((error) => {
+        throw error;
       });
     });
   }
@@ -39,13 +42,14 @@ module.exports = class LogArchiveSaver {
   }
 
   static save(archive, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
-    return LogArchiveSaver.saveToTmp(archive, jenkinsJobName, jenkinsBuildNumber).then((tmpPath) => {
-      const outputPath = `${tmpPath.path}/unarchived`;
-      const tmpFilePath = `${tmpPath.path}/${tmpPath.fileName}`;
+    return LogArchiveSaver.saveToLogDir(archive, jenkinsJobName, jenkinsBuildNumber).then((logPath) => {
+      const outputPath = `${LogPath.makeTmpPath(jenkinsJobName, jenkinsBuildNumber)}/unarchived`;
+      const logFilePath = `${logPath.path}/${logPath.fileName}`;
 
-      return LogArchiveSaver.unzip(tmpFilePath, outputPath, jenkinsJobName, jenkinsBuildNumber);
+      return LogArchiveSaver.unzip(logFilePath, outputPath, jenkinsJobName, jenkinsBuildNumber);
     }).then((path) => {
-      return LogArchiveSaver.saveToDB(path, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion);
+      console.log(path);
+      return LogArchiveSaver.saveToDB(path.unarchivedPath, path.archivePath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion);
     });
   }
 
@@ -60,23 +64,23 @@ module.exports = class LogArchiveSaver {
         if (error !== null) return reject(error);
         if (stderr) console.log(stderr);
 
-        resolve(outputPath);
+        resolve({archivePath: archivePath, unarchivedPath: outputPath});
       });
     });
   }
 
-  static saveToTmp(archive, jenkinsJobName, jenkinsBuildNumber) {
+  static saveToLogDir(archive, jenkinsJobName, jenkinsBuildNumber) {
     const fileName = archive.originalname;
-    const tmpPath = LogPath.makeTmpPath(jenkinsJobName, jenkinsBuildNumber);
-    const tmpFilePath = `${tmpPath}/${fileName}`;
+    const logPath = LogPath.makeLogPath(jenkinsJobName, jenkinsBuildNumber);
+    const logFilePath = `${logPath}/${fileName}`;
 
-    if (!fs.existsSync(tmpPath)) {
-      mkdirp.sync(tmpPath);
+    if (!fs.existsSync(logPath)) {
+      mkdirp.sync(logPath);
     }
 
-    return fsp.writeFile(tmpFilePath, archive.buffer).then(() => {
+    return fsp.writeFile(logFilePath, archive.buffer).then(() => {
       return {
-        path: tmpPath,
+        path: logPath,
         fileName: fileName
       };
     });
