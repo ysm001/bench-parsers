@@ -14,6 +14,7 @@ const LogArchiveSaver = require('./src/log-archive-saver.js');
 const ArchiveValidator = require('./src/validators/archive-validator.js');
 const db = require('./src/db.js');
 const Log = require('./src/models/log.js');
+const Cache = require('./src/services/cache.js');
 require('date-utils');
 require('array-sugar');
 
@@ -68,6 +69,13 @@ app.get('/logs/:id/:type.json', (req, res) => {
 
 app.get('/logs/:id.json', (req, res) => {
   returnResult(Log.findOne({_id: req.params.id}), res);
+});
+
+app.get('/logs/:id/export', (req, res) => {
+  const cache = new Cache();
+  cache.fetchSVGDataByDataId(req.params.id).then((response) => {
+    res.send(response);
+  });
 });
 
 app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, res) => {
