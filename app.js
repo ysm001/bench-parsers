@@ -11,6 +11,7 @@ const config = require('./config/server.json');
 const ParserExecuter = require('./src/parser-executer.js');
 const Zip = require('./libs/zip.js');
 const LogArchiveSaver = require('./src/log-archive-saver.js');
+const LogFormatter = require('./src/log-formatter.js');
 const ArchiveValidator = require('./src/validators/archive-validator.js');
 const db = require('./src/db.js');
 const Log = require('./src/models/log.js');
@@ -96,6 +97,21 @@ app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, r
     return LogArchiveSaver.save(req.file, params.jobname, params.buildnumber, body.oldVersion, body.newVersion);
   }).then(() => {
     res.send({result: true});
+  }).catch((e) => {
+    console.log(e.stack);
+    res.send({
+      result: false, error: { type: e.name, message: e.message }
+    });
+  });
+});
+
+app.post('/logs/upload', upload.single('archive'), (req, res) => {
+  const params = req.params;
+  const body = req.body;
+  const files = new Zip().unzip(req.file.buffer);
+
+  return LogFormatter.formatArchivedFile(req.file).then((result) => {
+    res.send({result: result});
   }).catch((e) => {
     console.log(e.stack);
     res.send({
