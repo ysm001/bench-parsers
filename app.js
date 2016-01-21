@@ -114,10 +114,13 @@ app.post('/logs/upload', upload.single('archive'), (req, res) => {
   return LogFormatter.formatArchivedFile(req.file).then((result) => {
     const oldVersion = result.versions[0];
     const newVersion = result.versions[1];
-    const promises = result.logs.map((log) => {
+    const time = Date.now();
+    const promises = result.logs.map((log, idx) => {
       const jobName = Path.basename(req.file.originalname, '.zip');
-      const buildNumber = Date.now();
-      return LogArchiveSaver.saveToDB(log.path, log.archivePath, jobName, buildNumber, oldVersion, newVersion, log.machine);
+      const buildNumber = `${time}${idx}`;
+      return LogArchiveSaver.saveToDB(log.path, log.archivePath, jobName, buildNumber, oldVersion, newVersion, log.machine).then(() => {
+        console.log(`${jobName}-${buildNumber} is saved.`);
+      });
     });
 
     return Promise.all(promises);
