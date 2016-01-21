@@ -88,8 +88,10 @@ module.exports = class Exporter {
 
     const promises = svgs.map((svg) => {
       const deferred = Promise.defer();
+      const isTableSvg = svg.id.includes('_table_');
+      const subDir = isTableSvg ? 'tables' : 'charts';
 
-      fs.outputFile(`${path}/${svg.id}.svg`, svg.svg, (err) => {
+      fs.outputFile(`${path}/${subDir}/${svg.id}.svg`, svg.svg, (err) => {
         err ? deferred.reject(err) : deferred.resolve();
       });
 

@@ -82,8 +82,9 @@ app.get('/logs/:id/export', (req, res) => {
     });
   }).then(() => {
     console.log(`${id} is successfully exported.`);
+    res.send({result: true});
   }).onReject((error) => {
-    res.send(error);
+    res.send({result: false, error: error});
     console.log(error.stack);
   });
 });
