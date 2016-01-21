@@ -13,6 +13,11 @@ const LogSchema = new mongoose.Schema({
   timestamps: true
 });
 
+
+LogSchema.static('findById', function(id) {
+  return this.findOne({_id: id}).exec();
+});
+
 LogSchema.static('findByJobNameAndBuildNumber', function(jobName, buildNumber) {
   return this 
     .where({jobName: jobName, buildNumber: buildNumber})

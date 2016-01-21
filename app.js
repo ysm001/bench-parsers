@@ -15,6 +15,7 @@ const ArchiveValidator = require('./src/validators/archive-validator.js');
 const db = require('./src/db.js');
 const Log = require('./src/models/log.js');
 const Cache = require('./src/services/cache.js');
+const Exporter = require('./src/services/exporter.js');
 require('date-utils');
 require('array-sugar');
 
@@ -73,8 +74,17 @@ app.get('/logs/:id.json', (req, res) => {
 
 app.get('/logs/:id/export', (req, res) => {
   const cache = new Cache();
-  cache.fetchSVGDataByDataId(req.params.id).then((response) => {
-    res.send(response);
+  const id = req.params.id;
+
+  Log.findById(id).then((log) => {
+    return cache.fetchSVGDataByDataId(req.params.id).then((svgs) => {
+      return (new Exporter()).export(res, log.archivePath, svgs);
+    });
+  }).then(() => {
+    console.log(`${id} is successfully exported.`);
+  }).onReject((error) => {
+    res.send(error);
+    console.log(error.stack);
   });
 });
 
