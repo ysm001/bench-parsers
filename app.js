@@ -38,6 +38,7 @@ app.get('/logs/summary.json', (req, res) => {
         newVersion: log.new,
         jobName: log.jobName,
         buildNumber: log.buildNumber,
+        machine: log.machine,
         createdAt: formatDate(log.createdAt),
         updatedAt: formatDate(log.updatedAt)
       }
@@ -114,8 +115,9 @@ app.post('/logs/upload', upload.single('archive'), (req, res) => {
     const oldVersion = result.versions[0];
     const newVersion = result.versions[1];
     const promises = result.logs.map((log) => {
-      const jobNameBuildNumber = Path.basename(log.archive_path, '.zip').split('-');
-      return LogArchiveSaver.saveToDB(log.path, log.archivePath, jobNameBuildNumber[0], jobNameBuildNumber[1], oldVersion, newVersion);
+      const jobName = Path.basename(req.file.originalname, '.zip');
+      const buildNumber = Date.now();
+      return LogArchiveSaver.saveToDB(log.path, log.archivePath, jobName, buildNumber, oldVersion, newVersion, log.machine);
     });
 
     return Promise.all(promises);
