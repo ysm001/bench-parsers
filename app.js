@@ -14,6 +14,7 @@ const LogArchiveSaver = require('./src/log-archive-saver.js');
 const ArchiveValidator = require('./src/validators/archive-validator.js');
 const db = require('./src/db.js');
 const Log = require('./src/models/log.js');
+const corser = require("corser");
 const Cache = require('./src/services/cache.js');
 const Exporter = require('./src/services/exporter.js');
 require('date-utils');
@@ -23,11 +24,7 @@ const formatDate = (date) => {
   return date.toFormat("YYYY/MM/DD HH24:MI:SS");
 }
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+app.use(corser.create());
 
 app.get('/logs/summary.json', (req, res) => {
   Log.find().sort({createdAt: -1}).then((logs) => {
