@@ -18,6 +18,7 @@ const Log = require('./src/models/log.js');
 const corser = require("corser");
 const Cache = require('./src/services/cache.js');
 const Exporter = require('./src/services/exporter.js');
+const Path = require('path');
 require('date-utils');
 require('array-sugar');
 
@@ -108,10 +109,18 @@ app.post('/logs/:jobname/:buildnumber/upload', upload.single('archive'), (req, r
 app.post('/logs/upload', upload.single('archive'), (req, res) => {
   const params = req.params;
   const body = req.body;
-  const files = new Zip().unzip(req.file.buffer);
 
   return LogFormatter.formatArchivedFile(req.file).then((result) => {
-    res.send({result: result});
+    const oldVersion = result.versions[0];
+    const newVersion = result.versions[1];
+    const promises = result.logs.map((log) => {
+      const jobNameBuildNumber = Path.basename(log.archive_path, '.zip').split('-');
+      return LogArchiveSaver.saveToDB(log.path, log.archivePath, jobNameBuildNumber[0], jobNameBuildNumber[1], oldVersion, newVersion);
+    });
+
+    return Promise.all(promises);
+  }).then(() => {
+    res.send({result: true});
   }).catch((e) => {
     console.log(e.stack);
     res.send({
