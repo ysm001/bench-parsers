@@ -26,7 +26,10 @@ const formatDate = (date) => {
   return date.toFormat("YYYY/MM/DD HH24:MI:SS");
 }
 
-app.use(corser.create());
+app.use(corser.create({
+  methods: corser.simpleMethods.concat(['PUT', 'DELETE']),
+  requestHeaders: corser.simpleRequestHeaders.concat(["X-Requested-With"])
+}));
 
 app.get('/logs/summary.json', (req, res) => {
   Log.find().sort({createdAt: -1}).then((logs) => {
