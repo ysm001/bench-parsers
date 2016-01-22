@@ -72,6 +72,15 @@ app.get('/logs/:id.json', (req, res) => {
   returnResult(Log.findOne({_id: req.params.id}), res);
 });
 
+app.delete('/logs/:id', (req, res) => {
+  Log.remove({_id: req.params.id}).exec().then(() => {
+    res.send({result: true});
+  }).onReject((error) => {
+    console.log(error);
+    res.send({result: false, error: error});
+  });
+});
+
 app.get('/logs/:id/export', (req, res) => {
   const cache = new Cache();
   const id = req.params.id;
@@ -115,6 +124,7 @@ app.post('/logs/upload', upload.single('archive'), (req, res) => {
     const oldVersion = result.versions[0];
     const newVersion = result.versions[1];
     const time = Date.now();
+    console.log(result.logs);
     const promises = result.logs.map((log, idx) => {
       const jobName = Path.basename(req.file.originalname, '.zip');
       const buildNumber = `${time}${idx}`;
