@@ -7,9 +7,16 @@ const LogSchema = new mongoose.Schema({
   buildNumber: { type: String },
   old: { type: String },
   new: { type: String },
+  archivePath: { type: String },
+  machine: { type: String },
   data: mongoose.Schema.Types.Mixed
 }, {
   timestamps: true
+});
+
+
+LogSchema.static('findById', function(id) {
+  return this.findOne({_id: id}).exec();
 });
 
 LogSchema.static('findByJobNameAndBuildNumber', function(jobName, buildNumber) {
