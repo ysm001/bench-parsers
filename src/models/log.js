@@ -8,6 +8,7 @@ const LogSchema = new mongoose.Schema({
   old: { type: String },
   new: { type: String },
   archivePath: { type: String },
+  machine: { type: String },
   data: mongoose.Schema.Types.Mixed
 }, {
   timestamps: true

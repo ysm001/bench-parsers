@@ -10,13 +10,14 @@ const Log = require('./models/log.js');
 const LogPath = require('./log-path.js');
 
 module.exports = class LogArchiveSaver {
-  static saveToDB(logPath, archivePath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion) {
+  static saveToDB(logPath, archivePath, jenkinsJobName, jenkinsBuildNumber, oldVersion, newVersion, machine) {
     return LogArchiveSaver.logFilesToJSON(logPath, oldVersion, newVersion).then((res) => {
       return Log.saveOrUpdate({
         old: oldVersion,
         new: newVersion,
         jobName: jenkinsJobName,
         buildNumber: jenkinsBuildNumber,
+        machine: machine,
         archivePath: archivePath,
         data: res
       }).onReject((error) => {
