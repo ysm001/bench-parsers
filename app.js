@@ -94,9 +94,8 @@ app.get('/logs/:id/export', (req, res) => {
     });
   }).then(() => {
     console.log(`${id} is successfully exported.`);
-    res.send({result: true});
   }).onReject((error) => {
-    res.send({result: false, error: error});
+    res.end({result: false, error: error});
     console.log(error.stack);
   });
 });
@@ -131,7 +130,7 @@ app.post('/logs/upload', upload.single('archive'), (req, res) => {
     const promises = result.logs.map((log, idx) => {
       const jobName = Path.basename(req.file.originalname, '.zip');
       const buildNumber = `${time}${idx}`;
-      return LogArchiveSaver.saveToDB(log.path, log.archivePath, jobName, buildNumber, oldVersion, newVersion, log.machine).then(() => {
+      return LogArchiveSaver.saveToDB(log.path, log.archive_path, jobName, buildNumber, oldVersion, newVersion, log.machine).then(() => {
         console.log(`${jobName}-${buildNumber} is saved.`);
       });
     });
