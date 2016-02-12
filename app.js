@@ -19,6 +19,8 @@ const corser = require("corser");
 const Cache = require('./src/services/cache.js');
 const Exporter = require('./src/services/exporter.js');
 const Path = require('path');
+const Renderer = require('./src/services/renderer.js');
+const waterfall = require('promise-waterfall');
 require('date-utils');
 require('array-sugar');
 
@@ -127,15 +129,19 @@ app.post('/logs/upload', upload.single('archive'), (req, res) => {
     const newVersion = result.versions[1];
     const time = Date.now();
     console.log(result.logs);
+
     const promises = result.logs.map((log, idx) => {
       const jobName = Path.basename(req.file.originalname, '.zip');
       const buildNumber = `${time}${idx}`;
-      return LogArchiveSaver.saveToDB(log.path, log.archive_path, jobName, buildNumber, oldVersion, newVersion, log.machine).then(() => {
+      return () => LogArchiveSaver.saveToDB(log.path, log.archive_path, jobName, buildNumber, oldVersion, newVersion, log.machine).then((log) => {
         console.log(`${jobName}-${buildNumber} is saved.`);
+        return (new Renderer).render(log.id, 'chart', log.data);
+      }).then(() => {
+        console.log(`${jobName}-${buildNumber} is rendered.`);
       });
     });
 
-    return Promise.all(promises);
+    return waterfall(promises);
   }).then(() => {
     res.send({result: true});
   }).catch((e) => {
